@@ -22,7 +22,8 @@
 
 
 
-  <link id="theme-cypherpunk" rel="stylesheet" href="css/dashboard_cypherpunk.css">
+  <link id="theme-pgpm" rel="stylesheet" href="css/dashboard_pgpm.css">
+  <link id="theme-cypherpunk" rel="stylesheet" href="css/dashboard_cypherpunk.css" disabled>
   <link id="theme-clean" rel="stylesheet" href="css/dashboard_clean.css" disabled>
   <script src="js/theme-preflip.js"></script>
 
@@ -31,21 +32,6 @@
 <body>
   <div class="ui-frame" aria-hidden="true"></div>
   <input type="file" id="vaultZipInput" accept=".zip" style="display:none;" data-action="handleVaultZip" data-on="change" data-pass-event>
-<div style="display: flex; justify-content: center;">
-  <h1><span class="typewriter-text" style="animation-delay: 0s;">Memoro Vault</span></h1>
-</div>
-<div style="position: relative; width: 100%; display: flex; justify-content: center;">
-  <p class="typewriter-text" style="animation-delay: 1.3s; margin-bottom: 0.3em; pointer-events: none;">
-    What matters most.
-  </p>
-</div>
-<div style="position: relative; width: 100%; display: flex; justify-content: center;">
-  <p class="typewriter-text" style="animation-delay: 2.5s; margin-top: 0; pointer-events: none;">
-    Hidden in plain sight.
-  </p>
-</div>
-
-
 <div class="button-group">
   <button class="button" style="animation-delay: 3.5s;" data-action="promptOfflineWarning" data-arg="create">+ Create New Vault</button>
   <button class="button" style="animation-delay: 5.5s;" data-action="promptOfflineWarning" data-arg="load">Load Vault File</button>

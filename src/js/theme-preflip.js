@@ -1,12 +1,24 @@
 /* js/theme-preflip.js: switch to the saved theme's stylesheet before the page paints (classic
- * script, loaded right after the two theme <link>s). Replaces per-page inline scripts. */
+ * script, loaded right after the theme <link>s). Replaces per-page inline scripts.
+ * Page scripts apply themes through window.MemoroTheme so every page agrees on the default. */
 (function () {
   'use strict';
-  let saved = 'cypherpunk';
-  try { saved = sessionStorage.getItem('theme') ?? localStorage.getItem('theme') ?? 'cypherpunk'; } catch (_) {}
-  const isCypher = saved === 'cypherpunk';
-  const cy = document.getElementById('theme-cypherpunk');
-  const cl = document.getElementById('theme-clean');
-  if (cy) cy.disabled = !isCypher;
-  if (cl) cl.disabled = isCypher;
+  const DEFAULT = 'pgpm';
+
+  // The saved theme when this page has a stylesheet for it, else the default
+  function saved() {
+    let theme = null;
+    try { theme = sessionStorage.getItem('theme') ?? localStorage.getItem('theme'); } catch (_) {}
+    return theme && document.getElementById(`theme-${theme}`) ? theme : DEFAULT;
+  }
+
+  // Enables theme-<name> and disables the other theme stylesheets; returns the theme now in effect
+  function flip(theme) {
+    if (!document.getElementById(`theme-${theme}`)) theme = DEFAULT;
+    document.querySelectorAll('link[id^="theme-"]').forEach((link) => { link.disabled = link.id !== `theme-${theme}`; });
+    return theme;
+  }
+
+  window.MemoroTheme = { DEFAULT, saved, flip };
+  flip(saved());
 })();

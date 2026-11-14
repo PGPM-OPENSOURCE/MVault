@@ -22,6 +22,9 @@ const projectRoot = path.resolve(__dirname);
 const projectRootLC = projectRoot.toLowerCase();
 // DevTools only when running from source (npm start / tests), never in release builds
 const ALLOW_DEVTOOLS = !app.isPackaged;
+// Windows: the main window opens at PGPM's size - a 920 x 510 page under the native title bar - and
+// resizes freely down to 640 x 400
+const PGPM_SIZE = process.platform === 'win32';
 app.commandLine.appendSwitch('disable-features', 'Geolocation');
 // The app is offline by design: Chromium may not resolve any host name at all.
 app.commandLine.appendSwitch('host-resolver-rules', 'MAP * ~NOTFOUND');
@@ -87,7 +90,7 @@ scrubLegacyWebStorage();
 
 // --- Non-secret preferences (only the theme) live in a small JSON file ---
 const PREFS_FILE = path.join(app.getPath('userData'), 'prefs.json');
-const THEMES = new Set(['cypherpunk', 'clean']);
+const THEMES = new Set(['pgpm', 'cypherpunk', 'clean']);
 function readTheme() {
   try {
     const t = JSON.parse(fs.readFileSync(PREFS_FILE, 'utf8'))?.theme;
@@ -125,6 +128,7 @@ function createLicenseWindow() {
     width: 680,
     height: 560,
     resizable: false,
+    backgroundColor: '#0c0c0c',
     modal: true,
     show: false,
     title: 'Memoro Vault — License Agreement',
@@ -225,8 +229,10 @@ async function hardenSession(ses) {
 
 function createMainWindow() {
   mainWindow = new BrowserWindow({
-    width: 1000,
-    height: 700,
+    width: PGPM_SIZE ? 920 : 1000,
+    height: PGPM_SIZE ? 510 : 700,
+    ...(PGPM_SIZE ? { useContentSize: true, minWidth: 640, minHeight: 400 } : {}),
+    backgroundColor: '#0c0c0c',
     show: false,
     icon: getPlatformIcon(), // CHANGED
     title: 'Memoro Vault',

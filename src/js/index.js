@@ -35,12 +35,7 @@ let pendingPreview = null;    // 'cypherpunk' | 'clean' | null
 let __themeRevertTimer = null;
 
 function applyTheme(theme){
-  const cy = document.getElementById('theme-cypherpunk');
-  const cl = document.getElementById('theme-clean');
-  if(!cy || !cl) return;
-
-  cy.disabled = theme !== 'cypherpunk';
-  cl.disabled = theme !== 'clean';
+  theme = MemoroTheme.flip(theme);
   document.body.setAttribute('data-theme', theme);
 
   // Matrix only on cypherpunk
@@ -123,7 +118,7 @@ function handleThemeClick(theme){
     chooseTheme(theme);
   } else {
     // first tap previews + shows "Confirm
-    previewFrom = sessionStorage.getItem(THEME_KEY) || localStorage.getItem(THEME_KEY) || 'cypherpunk';
+    previewFrom = sessionStorage.getItem(THEME_KEY) || localStorage.getItem(THEME_KEY) || MemoroTheme.DEFAULT;
     smoothApplyTheme(theme);
     pendingPreview = theme;
     setConfirmUI(theme);
@@ -166,23 +161,21 @@ function typeWriterEffect(txt,el,delay=30,cb=null){
 function acceptSafety(){
   document.getElementById('safetyModal').style.display='none';
   document.getElementById('startBtn').style.display='none';
+  // The PGPM look goes straight on; the typed welcome line is the other themes' flourish
+  if (document.body.getAttribute('data-theme') === 'pgpm') { location.href = 'dashboard.html'; return; }
   typeWriterEffect('Welcome_to_Memoro_Vault',document.getElementById('mainText'),28,()=>{
     setTimeout(()=>location.href='dashboard.html',1000);
   });
 }
 
 /* ---------------- INITIAL BOOT ---------------- */
+// PGPM is the default look, so the theme picker no longer opens on launch
 window.addEventListener('DOMContentLoaded',()=>{
-  const saved = sessionStorage.getItem(THEME_KEY) || localStorage.getItem(THEME_KEY);
-  if(saved){
-    applyTheme(saved);
-    const startBtn = document.getElementById('startBtn');
-    if (startBtn) startBtn.style.display='inline-block';
-  } else {
-    applyTheme('cypherpunk'); // default
-    const modal = document.getElementById('themeModal');
-    if (modal) modal.style.display='flex';
-  }
+  applyTheme(MemoroTheme.saved());
+  const modal = document.getElementById('themeModal');
+  if (modal) modal.style.display='none';
+  const startBtn = document.getElementById('startBtn');
+  if (startBtn) startBtn.style.display='inline-block';
 });
 
 /* expose handler for inline onclick in index.html */

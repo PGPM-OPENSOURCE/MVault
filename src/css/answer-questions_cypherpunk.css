@@ -93,7 +93,7 @@ body {
   .button-container {
   display: flex;
   justify-content: center;
-  flex-wrap: wrap; /* ✅ wrap on overflow instead of stacking immediately */
+  flex-wrap: wrap; /* wrap on overflow instead of stacking immediately */
   gap: 10px;
   margin-top: 30px;
   width: 100%;
@@ -107,8 +107,8 @@ body {
   font-size: 16px;
   border-radius: 8px;
   cursor: pointer;
-  min-width: 120px;         /* ✅ prevents buttons from shrinking too small */
-  flex: 1 1 auto;            /* ✅ allows flexible spacing side-by-side */
+  min-width: 120px;         /* prevents buttons from shrinking too small */
+  flex: 1 1 auto;            /* allows flexible spacing side-by-side */
   text-align: center;
   white-space: nowrap;
 }
@@ -215,7 +215,7 @@ body {
   }
 
   input[type="checkbox"]:checked::after {
-    content: "✔";
+    content: "✓";
     color: #00ff99;
     position: absolute;
     left: 50%;
@@ -344,7 +344,7 @@ body.modal-open { overflow: hidden; }
 
     .modal-content {
   background-color: #111;
-  padding: 20px; /* ✅ was 30–40px, now reduced */
+  padding: 20px; /* was 30–40px, now reduced */
   border-radius: 10px;
   border: 1px solid #00ff99;
   color: #ccc;
@@ -413,18 +413,18 @@ body.modal-open { overflow: hidden; }
   margin: 0;
 }
 
-/* 📱 Small screens: shrink to fit instead of scrolling */
+/* Small screens: shrink to fit instead of scrolling */
 @media (max-width: 600px) {
   .ascii-table-wrapper {
     overflow-x: hidden;   /* no horizontal scroll */
   }
   .ascii-table {
     display: block;
-    white-space: pre-wrap; /* ✅ wrap long lines */
+    white-space: pre-wrap; /* wrap long lines */
     word-break: break-word; 
-    font-size: 10px;       /* ✅ shrink font size */
-    width: 100%;           /* ✅ force full width of screen */
-    min-width: unset;      /* ✅ no forced min-width */
+    font-size: 10px;       /* shrink font size */
+    width: 100%;           /* force full width of screen */
+    min-width: unset;      /* no forced min-width */
     overflow-wrap: anywhere;
   }
 }
@@ -744,8 +744,8 @@ body[data-theme="cypherpunk"] .modal-content li {
 }
 
 .entropy-summary-toggle {
-  display: list-item;        /* ✅ restores the dropdown arrow */
-  list-style: disclosure-closed inside; /* ✅ ensure arrow style */
+  display: list-item;        /* restores the dropdown arrow */
+  list-style: disclosure-closed inside; /* ensure arrow style */
   white-space: normal;       
   word-break: break-word;    
   overflow-wrap: anywhere;
@@ -753,7 +753,7 @@ body[data-theme="cypherpunk"] .modal-content li {
 }
 
 .entropy-details[open] .entropy-summary-toggle {
-  list-style: disclosure-open inside; /* ✅ open state arrow */
+  list-style: disclosure-open inside; /* open state arrow */
 }
 
 .entropy-body {

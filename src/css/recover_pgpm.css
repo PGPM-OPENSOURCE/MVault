@@ -1,0 +1,260 @@
+@import url("pgpm.css");
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+h1 { margin: 28px 0 18px; font-size: 22px; font-weight: 600; text-align: center; }
+
+/* ---------- Answer form ---------- */
+.recovery-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 600px;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+.question-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 16px 18px;
+  background: var(--pg-panel);
+  border: 1px solid var(--pg-line);
+  border-radius: var(--pg-r);
+}
+.question-block label { font-size: 14px; line-height: 1.5; color: var(--pg-t1); }
+.question-block label b { margin-right: 2px; font-weight: 500; color: var(--pg-t3); }
+.question-block input[type="text"] { width: 100%; }
+
+/* Hint under each question: blanks/letters, then the custom hint */
+.hint-display { font-size: 13px; color: var(--pg-t3); }
+.hint-row { display: flex; align-items: center; gap: 12px; }
+.hint-code { font-family: var(--pg-mono); font-size: 14px; letter-spacing: .06em; white-space: pre; color: var(--pg-t2); }
+.hint-custom-text { font-size: 13px; color: var(--pg-t2); }
+.hint-custom-only { font-style: italic; color: var(--pg-t3); }
+@media (max-width: 520px) {
+  .hint-row { flex-wrap: wrap; gap: 6px 10px; }
+  .hint-custom-text { width: 100%; }
+}
+
+/* Multiple-choice options: small chips, answers keep their own case */
+.mcq-options { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0; }
+.mcq-btn {
+  min-height: 30px;
+  padding: 0 12px;
+  font-size: 14px;
+  color: var(--pg-t2);
+  background: var(--pg-panel);
+  border: 1px solid var(--pg-line-2);
+  border-radius: var(--pg-r);
+}
+.mcq-btn:hover { color: var(--pg-t1); background: var(--pg-tint); }
+.mcq-btn.selected { color: var(--pg-on-fill); background: var(--pg-fill); border-color: var(--pg-fill); }
+.mcq-btn.mcq-clear { color: var(--pg-t3); }
+
+.button-container { width: 100%; max-width: 600px; margin: 20px 0; }
+.button-container > .button:only-child { min-width: 220px; }
+
+/* ---------- Toast ---------- */
+#toast, .toast {
+  display: none;
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  z-index: 10000;
+  transform: translateX(-50%);
+  padding: 10px 18px;
+  font-size: 14px;
+  color: var(--pg-t1);
+  background: var(--pg-dialog);
+  border: 1px solid var(--pg-line-hi);
+  border-radius: var(--pg-r-btn);
+  opacity: 0;
+  transition: opacity .5s ease;
+}
+#toast.show { display: block; opacity: 1; }
+#toast.error { color: var(--pg-red); border-color: rgba(231, 72, 86, .45); }
+
+/* ---------- Modals ---------- */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, .7);
+}
+.modal.show { display: flex !important; animation: pgFade .15s ease-out; }
+
+.modal-content {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: calc(100vw - 80px);
+  max-width: 760px;
+  max-height: 90vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 24px;
+  text-align: center;
+  color: var(--pg-t1);
+  background: var(--pg-dialog);
+  border: 1px solid var(--pg-line-2);
+  border-radius: var(--pg-r-card);
+}
+.modal-content h2 { margin: 0; font-size: 18px; font-weight: 600; }
+.modal-buttons { margin-top: 6px; }
+.modal-buttons > button:only-child { min-width: 140px; }
+
+/* Long lines wrap inside previews */
+.modal-content .preview-content,
+.modal-content .preview-content pre,
+.modal-content .file-preview,
+.modal-content pre,
+.modal-content code {
+  max-width: 100%;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+.preview-content { margin-top: 6px; color: var(--pg-t2); }
+
+/* Recovered vault: support note, then the recovered files */
+.pow-section {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 600px;
+  padding: 20px;
+  text-align: center;
+  background: var(--pg-bg);
+  border: 1px solid var(--pg-line);
+  border-radius: var(--pg-r);
+}
+.donation-heading {
+  margin-bottom: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--pg-t3);
+}
+.donation-text { margin: 0 0 12px; font-size: 14px; line-height: 1.6; color: var(--pg-t2); }
+.donation-strong { font-weight: 600; color: var(--pg-t1); }
+.donation-button { min-height: 32px; font-size: 13px; }
+.donation-subcontainer { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 16px; }
+.donation-subtext { margin: 0; font-size: 13px; color: var(--pg-t3); }
+
+.vault-recovered { margin: 0 0 6px; font-size: 20px; font-weight: 600; color: var(--pg-white); }
+.recovered-seed { margin: 0; font-family: var(--pg-font); font-size: 14px; white-space: pre-wrap; color: var(--pg-t2); }
+.final-message {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  font-family: var(--pg-font);
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: var(--pg-t1);
+  background: var(--pg-panel);
+  border: 1px solid var(--pg-line);
+  border-radius: var(--pg-r);
+}
+
+.recovery-file-links { display: flex; flex-direction: column; align-items: stretch; width: 100%; margin-top: 18px; }
+.decrypted-files-title {
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--pg-t3);
+}
+.file-entry { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px; margin-bottom: 10px; }
+.recovery-file-links a.file-link { color: var(--pg-t1); }
+.preview-btn { min-height: 28px; padding: 0 10px; font-size: 13px; }
+.btn-row { margin-top: 18px; }
+@media (max-width: 560px) {
+  .modal-content { width: calc(100vw - 10px); padding: 10px; }
+  .pow-section { max-width: none; }
+}
+
+/* ---------- Red herring notice ---------- */
+.red-herring-title { margin-bottom: 4px; text-align: center; }
+.red-herring-text { margin: 0; font-size: 14px; line-height: 1.7; text-align: left; color: var(--pg-t2); }
+.red-herring-highlight, .leave-blank, .exactly-one, .example-label { font-weight: 600; color: var(--pg-t1); }
+.example-code { padding: 1px 5px; color: var(--pg-t1); background: var(--pg-input); border-radius: 4px; }
+.underline-strong { text-decoration-color: var(--pg-t3); text-underline-offset: 3px; }
+
+/* ---------- Checking answers (proof of work) ---------- */
+/* While it runs the page behind can't scroll or show a scrollbar (the gutter stays, so nothing shifts) */
+html:has(#powOverlay[style*="flex"]) { overflow: hidden; }
+/* Opaque, so the answers on the page never show through while it runs */
+#powOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  background: var(--pg-bg);
+}
+#powMessage { margin-bottom: 4px; font-size: 18px; font-weight: 600; color: var(--pg-t1); transition: opacity .5s ease; }
+#powTerminal {
+  box-sizing: border-box;
+  width: 100%;          /* full width, so its scrollbar sits at the window's edge */
+  max-width: none;
+  height: 300px;
+  overflow-y: auto;
+  padding: 16px 18px;
+  font-family: var(--pg-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: left;
+  color: var(--pg-t2);
+  background: var(--pg-panel);
+  border: 1px solid var(--pg-line);
+  border-radius: var(--pg-r);
+}
+.progress-label { width: 90%; max-width: 760px; margin: 0 auto; font-size: 13px; text-align: center; color: var(--pg-t2); }
+.progress-bar-container { box-sizing: border-box; width: 90%; max-width: 760px; height: 10px; margin: 0 auto; overflow: hidden; }
+.progress-bar-fill { display: flex; gap: 2px; height: 100%; align-items: center; justify-content: space-between; }
+.progress-block {
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  width: calc((100% - 78px) / 40);
+  height: 100%;
+  background: var(--pg-input);
+  border: 1px solid var(--pg-line-2);
+  border-radius: 2px;
+  transition: background-color .2s ease, border-color .2s ease;
+}
+.progress-block.filled { background: var(--pg-t1); border-color: var(--pg-t1); }
+
+/* Spacers below the form */
+.spacer { margin-bottom: 10px; }
+.spacer2 { margin-bottom: 20px; }
+.spacer3 { margin-bottom: 30px; }
+.spacer4 { margin-bottom: 40px; }
+.spacer5 { margin-bottom: 50px; }
+.spacer6 { margin-bottom: 60px; }
+.spacer7 { margin-bottom: 70px; }
+.spacer8 { margin-bottom: 80px; }
+.spacer9 { margin-bottom: 90px; }
+.spacer10 { margin-bottom: 100px; }

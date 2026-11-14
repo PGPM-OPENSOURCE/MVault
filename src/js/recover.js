@@ -172,16 +172,12 @@ window.nukeEverything = onLeave;
    1) Theme & Matrix control
 ----------------------------*/
 function applyRecoverTheme(theme) {
-  const cy = document.getElementById('theme-cypherpunk');
-  const cl = document.getElementById('theme-clean');
+  theme = MemoroTheme.flip(theme);
   const isCypher = (theme === 'cypherpunk');
-
-  if (cy) cy.disabled = !isCypher;
-  if (cl) cl.disabled =  isCypher;
 
   const setBodyAttr = () => {
     if (document.body) {
-      document.body.setAttribute('data-theme', isCypher ? 'cypherpunk' : 'clean');
+      document.body.setAttribute('data-theme', theme);
     }
   };
   if (document.readyState === 'loading') {
@@ -196,17 +192,9 @@ function applyRecoverTheme(theme) {
   }
 }
 
-// pre-flip like your inline version
+// read the saved theme (theme-preflip.js already flipped the stylesheets before paint)
 (function initRecoverTheme(){
-  const saved = sessionStorage.getItem('theme')
-             ?? localStorage.getItem('theme')
-             ?? 'cypherpunk';
-  window.__savedRecoverTheme = saved;
-  const cy = document.getElementById('theme-cypherpunk');
-  const cl = document.getElementById('theme-clean');
-  const isCypher = (saved === 'cypherpunk');
-  if (cy) cy.disabled = !isCypher;
-  if (cl) cl.disabled =  isCypher;
+  window.__savedRecoverTheme = MemoroTheme.saved();
 })();
 
 /* ---------------------------
@@ -730,7 +718,7 @@ async function submitRecovery() {
     const bruteAnswers = selectedL2Indices.map(idx => userAnswerMap[idx]);
     const permutations = generatePermutations(bruteAnswers);
     const totalAttempts = permutations.length;
-    await printLineSlow(`[⛏] Brute-forcing ${totalAttempts} permutations...`);
+    await printLineSlow(`[*] Brute-forcing ${totalAttempts} permutations...`);
 
     // Progress bar blocks
     const totalBlocks = 40;
@@ -769,6 +757,10 @@ async function submitRecovery() {
       const blocks = progressBar.querySelectorAll(".progress-block");
       blocks.forEach((b, i) => b.classList.toggle("filled", i < filled));
 
+      // Argon2 below holds the thread for the whole attempt: hand it back to the browser between
+      // attempts so the window keeps repainting the progress and follows resizes while unlocking.
+      await new Promise(r => setTimeout(r, 0));
+
       let rawFullKey = null;
       try {
         // L2 key (full key) → decrypt vault.meta
@@ -776,7 +768,7 @@ async function submitRecovery() {
         const metaBlob = await vaultZip.get("vault.meta");
         metaJson = await decryptVaultMeta(rawFullKey, vaultMetaIv, metaBlob);
 
-        await printLineSlow(`[✔] Vault unlocked on attempt ${attempt}.`);
+        await printLineSlow(`[+] Vault unlocked on attempt ${attempt}.`);
         finalFullConcat = fullConcat;
         foundPermutation = permuted.slice();
         break;
@@ -813,7 +805,7 @@ async function submitRecovery() {
     showRecoveryModal();
 
   } catch (err) {
-    console.error("❌ submitRecovery failed:", err);
+    console.error("submitRecovery failed:", err);
     showMessageModal("Error", err.message || String(err));
   } finally {
     $("powOverlay").style.display = "none";
@@ -966,7 +958,7 @@ window.RecoverMatrix = {
    12) Bootstrap on DOM ready
 ----------------------------*/
 (function bootstrapRecoverTheme(){
-  const apply = () => applyRecoverTheme(window.__savedRecoverTheme || 'cypherpunk');
+  const apply = () => applyRecoverTheme(window.__savedRecoverTheme || MemoroTheme.DEFAULT);
   if (document.readyState === 'loading') {
     window.addEventListener('DOMContentLoaded', apply, { once: true });
   } else apply();

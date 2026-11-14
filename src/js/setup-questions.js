@@ -1,17 +1,13 @@
   // Toggle Setup-Questions styles + matrix by theme
   function applySetupQuestionsTheme(theme) {
-    const cy = document.getElementById('theme-cypherpunk');
-    const cl = document.getElementById('theme-clean');
-    const isCypher = (theme === 'cypherpunk');
-
     // 1) Flip stylesheets
-    if (cy) cy.disabled = !isCypher;
-    if (cl) cl.disabled =  isCypher;
+    theme = MemoroTheme.flip(theme);
+    const isCypher = (theme === 'cypherpunk');
 
     // 2) Body attribute for CSS hooks
     const setBodyAttr = () => {
       if (document.body) {
-        document.body.setAttribute('data-theme', isCypher ? 'cypherpunk' : 'clean');
+        document.body.setAttribute('data-theme', theme);
       }
     };
     if (document.readyState === 'loading') {
@@ -27,21 +23,14 @@
     }
   }
 
-  // Read saved theme & preflip to avoid FOUC
+  // Read saved theme (theme-preflip.js already flipped the stylesheets before paint)
   (function initSetupQuestionsTheme(){
-    const saved = sessionStorage.getItem('theme') || 'cypherpunk';
-    window.__savedSetupQuestionsTheme = saved;
-
-    const cy = document.getElementById('theme-cypherpunk');
-    const cl = document.getElementById('theme-clean');
-    const isCypher = (saved === 'cypherpunk');
-    if (cy) cy.disabled = !isCypher;
-    if (cl) cl.disabled =  isCypher;
+    window.__savedSetupQuestionsTheme = MemoroTheme.saved();
   })();
 
   // Ensure apply runs even if DOMContentLoaded already fired
   (function bootstrapSetupQuestionsTheme(){
-    const apply = () => applySetupQuestionsTheme(window.__savedSetupQuestionsTheme || 'cypherpunk');
+    const apply = () => applySetupQuestionsTheme(window.__savedSetupQuestionsTheme || MemoroTheme.DEFAULT);
     if (document.readyState === 'loading') {
       window.addEventListener('DOMContentLoaded', apply, { once: true });
     } else {

@@ -1,17 +1,13 @@
   // Toggle Answer Questions page styles (and optional matrix)
   function applyAnswerQuestionsTheme(theme) {
-    const cy = document.getElementById('theme-cypherpunk');
-    const cl = document.getElementById('theme-clean');
-    const isCypher = (theme === 'cypherpunk');
-
     // 1) Flip stylesheets
-    if (cy) cy.disabled = !isCypher;
-    if (cl) cl.disabled =  isCypher;
+    theme = MemoroTheme.flip(theme);
+    const isCypher = (theme === 'cypherpunk');
 
     // 2) Body attribute (CSS hooks)
     const setBodyAttr = () => {
       if (document.body) {
-        document.body.setAttribute('data-theme', isCypher ? 'cypherpunk' : 'clean');
+        document.body.setAttribute('data-theme', theme);
       }
     };
     if (document.readyState === 'loading') {
@@ -27,16 +23,9 @@
     }
   }
 
-  // Initialize early to avoid FOUC
+  // Read saved theme (theme-preflip.js already flipped the stylesheets before paint)
   (function initAnswerQuestionsTheme(){
-    const saved = sessionStorage.getItem('theme') || 'cypherpunk';
-    window.__savedAnswerQuestionsTheme = saved;
-
-    const cy = document.getElementById('theme-cypherpunk');
-    const cl = document.getElementById('theme-clean');
-    const isCypher = (saved === 'cypherpunk');
-    if (cy) cy.disabled = !isCypher;
-    if (cl) cl.disabled =  isCypher;
+    window.__savedAnswerQuestionsTheme = MemoroTheme.saved();
   })();
 
 function openVaultDB(version = 2) {
@@ -61,7 +50,7 @@ function openVaultDB(version = 2) {
 async function handleFileStorageUpload(event) {
   const fileUpload = document.getElementById('fileUpload');
   const selectedFiles = Array.from(event.target.files);
-  fileUpload.value = null; // ✅ allow re-uploading the same files
+  fileUpload.value = null; // allow re-uploading the same files
 
   if (selectedFiles.length === 0) return;
 
@@ -139,7 +128,7 @@ function displayUploadedFiles() {
 
     const fileLabel = document.createElement('span');
     fileLabel.classList.add('upload-label');
-    fileLabel.textContent = `📄 ${file.name} (${Math.round(file.size / 1024)} KB)`;
+    fileLabel.textContent = `${file.name} (${Math.round(file.size / 1024)} KB)`;
 
     const removeBtn = document.createElement('button');
     removeBtn.classList.add('btn', 'btn-remove-upload');
@@ -284,7 +273,7 @@ window.addEventListener('DOMContentLoaded', () => {
       Use as <strong class="red-herring">Red Herring</strong>
     </label>
     <span class="info-icon"
-          title="What is a Red Herring?">ℹ</span>
+          title="What is a Red Herring?">i</span>
   </div>
 
 <!-- Recovery Preview row under Red Herring -->
@@ -344,7 +333,7 @@ window.addEventListener('DOMContentLoaded', () => {
         // Check if any other is already selected
         const alreadySelected = Array.from(checkboxes).find(other => other !== cb && other.checked);
         if (alreadySelected) {
-          // ❌ Disallow second selection
+          // Disallow second selection
           cb.checked = false;
           showMessageModal(
             "Only One Red Herring Allowed",
@@ -452,7 +441,7 @@ if (finalTrapIndex >= 0) {
       }));
 
       localStorage.setItem("namedSeedFiles", JSON.stringify(namedSeedFiles));
-      localStorage.removeItem("namedSeeds"); // ✅ clear temp seed list after saving
+      localStorage.removeItem("namedSeeds"); // clear temp seed list after saving
 
       window.location.href = "build-vault.html";
     };
@@ -826,7 +815,7 @@ function saveCustomHint() {
   const mcqEnabled = !!document.getElementById('mcqEnabled')?.checked;
   const customText = document.getElementById('customHintText').value.trim();
 
-  // 🚫 Block saving MCQ on L1 with a warning (UI stays visible)
+  // Block saving MCQ on L1 with a warning (UI stays visible)
   if (mcqEnabled && isGateIndex(activeHintIndex)) {
     // snap the UI back off so the preview & state match the rule
     const mcqEnabledEl = document.getElementById('mcqEnabled');
@@ -1087,7 +1076,7 @@ function securelyClearSensitiveData() {
   };
 })();
 (function bootstrapAnswerQuestionsTheme(){
-  const apply = () => applyAnswerQuestionsTheme(window.__savedAnswerQuestionsTheme || 'cypherpunk');
+  const apply = () => applyAnswerQuestionsTheme(window.__savedAnswerQuestionsTheme || MemoroTheme.DEFAULT);
   if (document.readyState === 'loading') {
     window.addEventListener('DOMContentLoaded', apply, { once: true });
   } else {
@@ -1233,10 +1222,11 @@ function updateEntropy(index) {
   const answer = input.value.trim().toLowerCase();
   const hintObj = customHints[index] || { letters: [], showLength: true };
 
+  // Colours are var(--mv-entropy-*, <neon default>): a theme stylesheet may override them (pgpm does).
   // The red herring's decoy answer is replaced by "" before key derivation: 0 bits.
   if (index === getSelectedTrapIndex()) {
     entropyDisplay.textContent = 'Entropy: 0.0 bits (red herring, not part of the key)';
-    entropyDisplay.style.color = '#ff9933';
+    entropyDisplay.style.color = 'var(--mv-entropy-warn, #ff9933)';
     calculateTotalEntropy();
     return;
   }
@@ -1246,9 +1236,9 @@ if (hintObj.mcqEnabled) {
   const n = Math.max(2, Math.min(12, Array.isArray(hintObj.mcqOptions) ? hintObj.mcqOptions.length : 0));
   const baseEntropy = Math.log2(n);
   const effectiveEntropy = Math.max(0, baseEntropy); // no penalties; length/letters unused
-  let color = '#ff3333';
-  if (effectiveEntropy >= 40) color = '#00ff99';
-  else if (effectiveEntropy >= 20) color = '#ffff00';
+  let color = 'var(--mv-entropy-weak, #ff3333)';
+  if (effectiveEntropy >= 40) color = 'var(--mv-entropy-strong, #00ff99)';
+  else if (effectiveEntropy >= 20) color = 'var(--mv-entropy-mid, #ffff00)';
   entropyDisplay.textContent = `Entropy: ${effectiveEntropy.toFixed(1)} bits`;
   entropyDisplay.style.color = color;
   calculateTotalEntropy();
@@ -1280,9 +1270,9 @@ if (hintObj.mcqEnabled) {
 
   const effectiveEntropy = Math.max(0, baseEntropy - lettersPenalty - lengthPenalty);
 
-  let color = '#ff3333';
-  if (effectiveEntropy >= 40) color = '#00ff99';
-  else if (effectiveEntropy >= 20) color = '#ffff00';
+  let color = 'var(--mv-entropy-weak, #ff3333)';
+  if (effectiveEntropy >= 40) color = 'var(--mv-entropy-strong, #00ff99)';
+  else if (effectiveEntropy >= 20) color = 'var(--mv-entropy-mid, #ffff00)';
 
   entropyDisplay.textContent = `Entropy: ${effectiveEntropy.toFixed(1)} bits`;
   entropyDisplay.style.color = color;
@@ -1310,19 +1300,19 @@ function calculateTotalEntropy() {
   const assessment = document.getElementById('entropyAssessment');
   if (totalBits < 40) {
     assessment.textContent = 'Very Weak';
-    assessment.style.color = '#ff3333';
+    assessment.style.color = 'var(--mv-entropy-weak, #ff3333)';
   } else if (totalBits < 80) {
     assessment.textContent = 'Weak';
-    assessment.style.color = '#ff9933';
+    assessment.style.color = 'var(--mv-entropy-warn, #ff9933)';
   } else if (totalBits < 120) {
     assessment.textContent = 'Moderate';
-    assessment.style.color = '#ffff00';
+    assessment.style.color = 'var(--mv-entropy-mid, #ffff00)';
   } else if (totalBits < 180) {
     assessment.textContent = 'Strong';
-    assessment.style.color = '#66ff66';
+    assessment.style.color = 'var(--mv-entropy-good, #66ff66)';
   } else {
     assessment.textContent = 'Very Strong';
-    assessment.style.color = '#00ff99';
+    assessment.style.color = 'var(--mv-entropy-strong, #00ff99)';
   }
 
   // Calculate and display total combinations
@@ -1365,20 +1355,20 @@ function calculateTotalEntropy() {
 const tier = document.getElementById("crackabilityTier");
 if (tier) {
   if (totalBits < 40) {
-    tier.textContent = "⚠️ Crackable instantly — trivial for any attacker";
-    tier.style.color = "#ff3333";
+    tier.textContent = "Crackable instantly — trivial for any attacker";
+    tier.style.color = "var(--mv-entropy-weak, #ff3333)";
   } else if (totalBits < 80) {
-    tier.textContent = "🔶 Vulnerable to distributed attacks (≤ 79 bits)";
-    tier.style.color = "#ff9933";
+    tier.textContent = "Vulnerable to distributed attacks (≤ 79 bits)";
+    tier.style.color = "var(--mv-entropy-warn, #ff9933)";
   } else if (totalBits < 120) {
-    tier.textContent = "🟡 Resistant to consumer + small-scale parallel attacks (≥ 80 bits)";
-    tier.style.color = "#ffff66";
+    tier.textContent = "Resistant to consumer + small-scale parallel attacks (≥ 80 bits)";
+    tier.style.color = "var(--mv-entropy-mid, #ffff66)";
   } else if (totalBits < 180) {
-    tier.textContent = "🟢 Strong even against enterprise GPU clusters (≥ 120 bits)";
-    tier.style.color = "#66ff66";
+    tier.textContent = "Strong even against enterprise GPU clusters (≥ 120 bits)";
+    tier.style.color = "var(--mv-entropy-good, #66ff66)";
   } else {
-    tier.textContent = "🟢 Functionally immune to brute-force (≥ 180 bits)";
-    tier.style.color = "#00ff99";
+    tier.textContent = "Functionally immune to brute-force (≥ 180 bits)";
+    tier.style.color = "var(--mv-entropy-strong, #00ff99)";
   }
 }
 }

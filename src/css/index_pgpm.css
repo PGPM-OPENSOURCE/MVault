@@ -1,0 +1,127 @@
+@import url("pgpm.css");
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  height: 100dvh;
+  max-height: 100dvh;
+  padding: 4vh 5vw 3vh;
+  box-sizing: border-box;
+  overflow-y: auto;
+  text-align: center;
+}
+
+p {
+  margin: 0 auto;
+  max-width: 90vw;
+  font-family: var(--pg-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  letter-spacing: .06em;
+  color: var(--pg-t2);
+  white-space: pre-line;
+}
+
+#startBtn { min-width: 160px; }
+
+/* ===== Modals ===== */
+.modal {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, .7);
+}
+.modal.hidden { display: none; }
+.modal[aria-hidden="true"] { visibility: hidden; }
+#themeModal { display: none; }   /* PGPM is the default look: no theme picker on launch */
+
+.modal-content {
+  box-sizing: border-box;
+  width: min(760px, 92vw);
+  max-height: 86vh;
+  overflow-y: auto;
+  padding: 24px 28px 0;     /* the bottom padding lives in the sticky button bar */
+  text-align: center;
+  color: var(--pg-t1);
+  background: var(--pg-dialog);
+  border: 1px solid var(--pg-line-2);
+  border-radius: var(--pg-r-card);
+  animation: pgFade .15s ease-out;
+}
+#themeModal .modal-content { width: auto; min-width: 280px; padding-bottom: 22px; }
+
+.modal-content h2 { margin: 0 0 14px; font-size: 18px; font-weight: 600; }
+
+/* Section label: small grey caps over a divider */
+.modal-content h3 {
+  margin: 0 0 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--pg-line-2);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--pg-t3);
+  text-align: left;
+}
+
+.modal-tips {
+  margin: 0 0 6px;
+  text-align: left;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--pg-t2);
+}
+.modal-tips div {
+  position: relative;
+  margin-bottom: 8px;
+  padding-left: 16px;
+}
+.modal-tips div::before {
+  content: "•";
+  position: absolute;
+  left: 2px;
+  color: var(--pg-t3);
+}
+.modal-tips strong { font-weight: 600; color: var(--pg-t1); }
+.modal-tips ul { margin: 6px 0 8px; padding-left: 18px; }
+.modal-tips li { margin: 3px 0; }
+.modal-tips li::marker { color: var(--pg-t3); }
+.modal-tips code {
+  padding: 1px 5px;
+  font-size: 12px;
+  color: var(--pg-t1);
+  background: var(--pg-input);
+  border-radius: 4px;
+}
+
+/* The safety notice's button stays in view while the long text scrolls under it */
+#safetyModal .modal-buttons {
+  position: sticky;
+  bottom: 0;
+  padding: 14px 0 22px;
+  background: var(--pg-dialog);
+  border-top: 1px solid var(--pg-line-2);
+}
+#safetyModal .modal-buttons > button { min-width: 180px; }
+
+.hidden { display: none; }
+.logo { max-width: 300px; height: auto; margin-bottom: 20px; }

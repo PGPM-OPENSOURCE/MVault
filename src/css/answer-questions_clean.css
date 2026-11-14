@@ -79,7 +79,7 @@ label {
 input[type="text"], textarea, select {
   padding: 10px;
   border-radius: 6px;
-  border: 1px solid #000;  /* 👈 black outline so users see where to type */
+  border: 1px solid #000;  /* black outline so users see where to type */
   font-size: 16px;
   background-color: #fff;  
   color: #000;             
@@ -224,7 +224,7 @@ input[type="checkbox"] {
 }
 
 input[type="checkbox"]:checked::after {
-  content: "✔";
+  content: "✓";
   position: absolute;
   left: 50%;
   top: 50%;
@@ -385,7 +385,7 @@ input[type="checkbox"]:hover {
   margin: 0;
 }
 
-/* 📱 Small screens: shrink to fit instead of scrolling */
+/* Small screens: shrink to fit instead of scrolling */
 @media (max-width: 600px) {
   .ascii-table-wrapper {
     overflow-x: hidden;
@@ -613,8 +613,8 @@ body[data-theme="clean"] .modal-content {
 }
 
 .entropy-summary-toggle {
-  display: list-item;        /* ✅ restores the dropdown arrow */
-  list-style: disclosure-closed inside; /* ✅ ensure arrow style */
+  display: list-item;        /* restores the dropdown arrow */
+  list-style: disclosure-closed inside; /* ensure arrow style */
   white-space: normal;       
   word-break: break-word;    
   overflow-wrap: anywhere;
@@ -622,7 +622,7 @@ body[data-theme="clean"] .modal-content {
 }
 
 .entropy-details[open] .entropy-summary-toggle {
-  list-style: disclosure-open inside; /* ✅ open state arrow */
+  list-style: disclosure-open inside; /* open state arrow */
 }
 
 .entropy-body {

@@ -1,0 +1,320 @@
+/* css/pgpm.css: tokens and shared controls for the PGPM theme. Every *_pgpm.css page sheet
+   imports this first, so it only applies while that page's theme-pgpm stylesheet is enabled.
+   The look: a console - the "Campbell" console colours, Cascadia Mono at one size on 19px lines,
+   everything set from the top-left like console output, no boxes, borders or rounded corners,
+   buttons as bracketed words ([Continue]) that invert under the pointer like a console selection,
+   and progress drawn with # characters. The console layout at the end of this file overrides the
+   page sheets' own layout, hence its !important. */
+
+/* Windows Terminal's font (SIL OFL, bundled with its licence in assets/fonts) */
+@font-face {
+  font-family: "Cascadia Mono";
+  src: local("Cascadia Mono"), url("../assets/fonts/CascadiaMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+:root {
+  color-scheme: dark;
+
+  /* cmd's console colours ("Campbell"): greys on near-black, no tint */
+  --pg-bg: #0c0c0c;        /* the console's black */
+  --pg-panel: #0c0c0c;
+  --pg-raised: #121212;
+  --pg-input: #1a1a1a;     /* fields: a dim line to type on */
+  --pg-dialog: #161616;    /* menus and toasts that float over the text */
+  --pg-btn: #262626;
+  --pg-fill: #cccccc;      /* a selection / the button under the pointer: inverted */
+  --pg-fill-hi: #f2f2f2;
+  --pg-on-fill: #0c0c0c;   /* text on a fill */
+  --pg-tint: rgba(255, 255, 255, .07);
+  --pg-line: #3a3a3a;
+  --pg-line-2: #3a3a3a;
+  --pg-line-hi: #767676;   /* scrollbar */
+  --pg-t1: #cccccc;        /* text: cmd's default */
+  --pg-t2: #a8a8a8;        /* secondary text */
+  --pg-t3: #767676;        /* muted text, placeholders */
+  --pg-t4: #4a4a4a;        /* disabled */
+  --pg-white: #f2f2f2;     /* bright text: titles, the main action, emphasis */
+  --pg-red: #e74856;
+  --pg-amber: #c19c00;
+
+  --pg-font: "Cascadia Mono", Consolas, "Lucida Console", monospace;
+  --pg-mono: var(--pg-font);
+  --pg-line-h: 19px;       /* one console line */
+
+  --pg-btn-h: 19px;
+  --pg-r: 0;
+  --pg-r-btn: 0;
+  --pg-r-card: 0;
+
+  /* Entropy ladder read by answer-questions.js (other themes keep its neon defaults) */
+  --mv-entropy-weak: var(--pg-red);
+  --mv-entropy-warn: var(--pg-amber);
+  --mv-entropy-mid: #f9f1a5;
+  --mv-entropy-good: var(--pg-t1);
+  --mv-entropy-strong: var(--pg-white);
+}
+
+/* ---------- Base ---------- */
+html {
+  display: block !important;   /* a page sheet may make <html> a centring flex box */
+  background: var(--pg-bg);
+  scrollbar-gutter: stable;
+}
+body {
+  background: var(--pg-bg);
+  color: var(--pg-t1);
+  font-family: var(--pg-font);
+  font-variant-numeric: tabular-nums;
+}
+::selection { color: var(--pg-on-fill); background: var(--pg-fill); }   /* cmd marks a selection inverted */
+/* a console has no rounded corners and draws no borders, anywhere (border widths stay, so nothing moves) */
+*, *::before, *::after { border-radius: 0 !important; border-color: transparent !important; }
+
+h1, h2, h3 { color: var(--pg-white); font-family: var(--pg-font); letter-spacing: 0; text-shadow: none; }
+b, strong { color: var(--pg-white); }   /* a console has no bold: emphasis is bright text */
+a { color: var(--pg-t1); text-decoration-color: var(--pg-t3); text-underline-offset: 3px; }
+a:hover { text-decoration-color: var(--pg-t1); }
+hr { border: 0; height: 1px; background: transparent; }
+
+/* Cypherpunk decorations (matrix rain, neon frame, crack/flash layers) never show here */
+#matrix, #hashMist, #matrixCanvas, .matrix-overlay, .overlay, #themeFade,
+#vaultCrackOverlay, #crackOverlay, #burstFlash, .ui-frame { display: none !important; }
+
+/* ---------- Scrollbars: Windows Terminal's thin square thumb ---------- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--pg-line-hi); border-radius: 0; }
+::-webkit-scrollbar-thumb:hover { background: var(--pg-t2); }
+
+@keyframes pgFade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------- Buttons: a bracketed word, inverted under the pointer like a cmd selection ---------- */
+button, .button, .mv-btn {
+  box-sizing: border-box;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  flex: 0 0 auto !important;
+  text-transform: none;
+  white-space: nowrap;
+  color: var(--pg-t1);
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  cursor: pointer;
+}
+:is(button, .button, .mv-btn)::before { content: "["; }
+:is(button, .button, .mv-btn)::after { content: "]"; }
+:is(button, .button, .mv-btn):hover, :is(button, .button, .mv-btn):focus-visible {
+  color: var(--pg-on-fill) !important;
+  background: var(--pg-fill) !important;
+  outline: none;
+  transform: none;
+  filter: none;
+}
+:is(button, .button, .mv-btn):active { color: var(--pg-on-fill) !important; background: var(--pg-t2) !important; }
+:is(button, .button, .mv-btn):is(:disabled, [disabled]) {
+  color: var(--pg-t4) !important;
+  background: transparent !important;
+  cursor: not-allowed;
+}
+
+/* ---------- Button rows: words on one line, two spaces apart ---------- */
+:where(.button-group, .modal-buttons, .button-container, #actionButtons, .btn-row, .button-row) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 2ch;
+}
+/* each row's main action is bright, like the text you'd type next */
+:where(.button-group, .modal-buttons, .button-container, #actionButtons, .btn-row, .button-row)
+  > :is(button, .button):where([data-arg="create"], #unlockButton, [data-action="proceedAfterOfflineWarning"],
+      [data-action="confirmYes"], [data-action="submitRename"], #rebuildBtn, [data-action="startVaultSetup"],
+      [data-action="showDisclaimer"], [data-action="saveModalEdit"], [data-action="submitAnswers"], #hintSaveBtn,
+      #litePickerConfirm, .mv-edit-vault):not(:disabled):not(:hover) {
+  color: var(--pg-white) !important;
+}
+
+/* ---------- Fields: a dim line to type on ---------- */
+input[type="text"], input[type="password"], input[type="number"], input:not([type]), textarea, select {
+  box-sizing: border-box;
+  color: var(--pg-t1);
+  background-color: var(--pg-input) !important;
+  border: 0 !important;
+  padding: 0 1ch !important;
+  caret-color: var(--pg-white);
+  box-shadow: none !important;
+  outline: none;
+}
+input[type="text"], input[type="password"], input[type="number"], input:not([type]), select {
+  height: auto !important;
+  min-height: 0 !important;
+}
+:is(input, textarea, select):focus { background-color: #262626 !important; box-shadow: none !important; outline: none; }
+input[readonly] { color: var(--pg-t2); }
+::placeholder { color: var(--pg-t3); opacity: 1; }
+select {
+  appearance: none;
+  padding-right: 3ch !important;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%23a8a8a8' stroke-width='1.5' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1ch center;
+}
+select option { background: var(--pg-input); color: var(--pg-t1); }
+input[type="file"] { color: var(--pg-t2); }
+input[type="file"]::file-selector-button {
+  margin-right: 2ch;
+  padding: 0;
+  font: inherit;
+  color: var(--pg-t1);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+input[type="file"]::file-selector-button:hover { color: var(--pg-on-fill); background: var(--pg-fill); }
+
+/* ---------- Checkboxes: "[ ]" and "[x]" ---------- */
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  display: inline-block;
+  flex: 0 0 auto;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  vertical-align: baseline;
+  color: var(--pg-t2);
+  background: none !important;
+  border: 0;
+  box-shadow: none;
+  cursor: pointer;
+}
+input[type="checkbox"]::after { content: "[ ] "; white-space: pre; }
+input[type="checkbox"]:checked::after { content: "[x] "; color: var(--pg-white); }
+input[type="checkbox"]:hover::after { color: var(--pg-white); }
+input[type="checkbox"]:focus-visible { outline: 1px solid var(--pg-t3); outline-offset: 2px; }
+
+/* ---------- Range slider: a thin track, a block cursor ---------- */
+input[type="range"] { appearance: none; -webkit-appearance: none; height: 19px; background: transparent; cursor: pointer; }
+input[type="range"]::-webkit-slider-runnable-track { height: 2px; border-radius: 0; background: var(--pg-t3); }
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 9px;
+  height: 17px;
+  margin-top: -8px;
+  border: 0;
+  border-radius: 0;
+  background: var(--pg-t1);
+}
+input[type="range"]:focus-visible { outline: none; }
+
+summary { cursor: pointer; color: var(--pg-t2); }
+summary:hover { color: var(--pg-on-fill); background: var(--pg-fill); }
+
+/* =====================================================================================================
+   The console layout: one size of Cascadia Mono on 19px lines, set from the top-left with 8px of
+   padding; no centring, cards, boxes or floating dialogs (a dialog takes over the window like
+   console output). Page sheets centre, box and size things, so this layer is !important.
+   ===================================================================================================== */
+body {
+  display: block !important;
+  margin: 0 !important;
+  padding: 8px !important;
+  min-height: 0 !important;
+  height: auto !important;
+}
+body, body *, body *::before, body *::after {
+  font-family: var(--pg-font) !important;
+  font-size: 16px !important;
+  line-height: var(--pg-line-h) !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+  letter-spacing: 0 !important;
+  text-shadow: none !important;
+}
+body, body * { text-align: left !important; }
+body * { justify-content: flex-start !important; }
+
+/* titles: a bright line with a blank line after it, like a command's first line of output */
+body :is(h1, h2, h3, h4, h5, h6) { margin: 0 0 var(--pg-line-h) !important; padding: 0 !important; color: var(--pg-white) !important; }
+body :is(h1, h2, h3, h4, h5, h6)::after { content: none !important; }
+body p { margin-left: 0 !important; margin-right: 0 !important; }
+
+/* page containers that centre themselves: start at the left edge, take the full width, no box */
+body :is(.content, #vaultContainer, #mainContainer, .pow-panel, .total-entropy, .entropy-details,
+         #progressBarWrapper, .button-group, .button-container, .progress-label, .progress-bar-container,
+         .question-list, .question-form, .vault-list, .section, .modal-tips, .final-message, p.instruction,
+         .input-group, #totalEntropyContainer, #uploadedFileList) {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  align-items: flex-start !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+body :is(.content, #vaultContainer, #mainContainer, .pow-panel, .modal-tips, .final-message, p.instruction,
+         .total-entropy, .entropy-details, #progressBarWrapper, .button-group, .button-container) {
+  padding: 0 !important;
+}
+/* cards and blocks: just their lines, a blank line apart */
+body :is(.question-block, .question-item, .vault-item, .seed-entry, .upload-entry, .ascii-table,
+         #powTerminal, .mv-row, .mv-recovered-row, .mcq-btn, .stat-box) {
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+body :is(.question-block, .vault-item, .seed-entry, .question-item) { margin: 0 0 var(--pg-line-h) !important; }
+
+/* dialogs take over the window, like console output, instead of floating in a box */
+body :is(.modal-overlay, #powOverlay, #powDifficultyModal, .mv-editor, .mv-dialog-overlay, .mv-progress, .mv-viewer),
+body .modal:not(.modal-overlay .modal) {
+  background: var(--pg-bg) !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  padding: 8px !important;
+  overflow-y: auto !important;
+  backdrop-filter: none !important;
+}
+body :is(.modal-content, .modal-overlay > .modal, .modal-box, .pow-section, .mv-editor-panel, .mv-dialog,
+         .mv-progress-box, .mv-viewer-panel) {
+  background: transparent !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
+  overflow: visible !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+#safetyModal .modal-buttons { background: var(--pg-bg) !important; padding: var(--pg-line-h) 0 8px !important; }
+body .vault-menu { background: var(--pg-dialog) !important; padding: 0 1ch !important; }
+body #suggestionsList button { background: transparent !important; padding: 0 !important; }
+
+/* the red-herring hint badge: "(i)" */
+body .info-icon { display: inline !important; width: auto !important; height: auto !important; background: transparent !important; color: var(--pg-t2) !important; }
+body .info-icon::before { content: "("; }
+body .info-icon::after { content: ")"; }
+
+/* progress, drawn with characters: [########........] */
+body .progress-bar-container { height: auto !important; overflow: visible !important; }
+body .progress-bar-fill { display: inline-flex !important; gap: 0 !important; width: auto !important; height: auto !important; background: none !important; }
+body .progress-bar-fill::before { content: "["; }
+body .progress-bar-fill::after { content: "]"; }
+body .progress-block { width: auto !important; height: auto !important; flex: 0 0 auto !important; background: none !important; }
+body .progress-block::before { content: "."; color: var(--pg-t4); }
+body .progress-block.filled::before { content: "#"; color: var(--pg-t1); }

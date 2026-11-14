@@ -1,0 +1,38 @@
+@import url("pgpm.css");
+
+body { margin: 0; overflow-x: hidden; }
+
+.content { max-width: 760px; margin: auto; padding: 48px 28px 56px; }
+/* The page opens with its first section: no divider (or gap) above it */
+.content > :is(h2, h3):first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+
+h1 { margin: 36px 0 26px; font-size: 26px; font-weight: 600; text-align: center; color: var(--pg-white); }
+
+/* Section headings: small grey caps over a divider */
+h2, h3 {
+  margin: 34px 0 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--pg-line-2);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--pg-t3);
+}
+.content > h3:first-child { margin-top: 0; }
+
+p { margin: 0 0 16px; font-size: 15px; line-height: 1.7; color: var(--pg-t2); }
+strong { font-weight: 600; color: var(--pg-t1); }
+em { color: var(--pg-t1); }
+
+/* Preface quote */
+.modal-tips { padding: 16px 20px; background: var(--pg-panel); border: 1px solid var(--pg-line); border-radius: var(--pg-r); }
+.modal-tips p:last-of-type { margin-bottom: 0; }
+.modal-tips > div { color: var(--pg-t3); }
+
+ul { list-style: none; margin: 14px 0 24px; padding-left: 0; }
+ul li { position: relative; margin-bottom: 8px; padding-left: 20px; font-size: 15px; line-height: 1.6; color: var(--pg-t2); }
+ul li::before { content: "\25B8"; position: absolute; left: 2px; color: var(--pg-t3); }
+
+.button-container { margin-top: 40px; }
+.button-container > .button { min-width: 220px; }

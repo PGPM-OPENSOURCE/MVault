@@ -1,0 +1,154 @@
+@import url("pgpm.css");
+
+body {
+  margin: 0;
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h1 { margin: 0 0 16px; font-size: 22px; font-weight: 600; text-align: center; }
+
+p.instruction {
+  box-sizing: border-box;
+  max-width: 700px;
+  margin: 0 0 24px;
+  padding: 14px 20px;
+  font-size: 14px;
+  line-height: 1.65;
+  text-align: center;
+  color: var(--pg-t2);
+  background: var(--pg-panel);
+  border: 1px solid var(--pg-line);
+  border-radius: var(--pg-r);
+}
+p.instruction b { font-weight: 600; color: var(--pg-t1); }
+
+.help-link {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 5px 12px;
+  font-size: 13px;
+  text-decoration: none;
+  color: var(--pg-t2);
+  border: 1px solid var(--pg-line-2);
+  border-radius: var(--pg-r);
+  transition: background-color .2s ease, color .2s ease;
+}
+.help-link:hover { color: var(--pg-t1); background: var(--pg-tint); text-decoration: none; }
+
+/* ---------- Question rows ---------- */
+.question-list { width: 100%; max-width: 800px; display: flex; flex-direction: column; }
+.question-item {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+  padding: 10px 12px 10px 14px;
+  background: var(--pg-panel);
+  border: 1px solid var(--pg-line);
+  border-radius: var(--pg-r);
+  transition: border-color .15s ease, background-color .15s ease;
+}
+/* The two unlock questions stand out, like a lit tab */
+.question-item:has(.unlock-checkbox:checked) { background: var(--pg-raised); border-color: var(--pg-line-hi); }
+
+.question-text {
+  flex-grow: 1;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--pg-t1);
+}
+.question-text b { margin-right: 4px; font-weight: 500; color: var(--pg-t3); }
+
+.edit-button { min-height: 30px; padding: 0 14px; font-size: 13px; }
+
+.unlock-checkbox { width: 20px; height: 20px; margin: 0; }
+.unlock-checkbox::after { width: 10px; height: 5px; }
+
+@media (max-width: 560px) {
+  .question-item {
+    display: grid;
+    grid-template-columns: 1fr max-content max-content 1fr;
+    row-gap: 12px;
+    column-gap: 40px;
+  }
+  .question-text { grid-column: 1 / -1; text-align: left; }
+  .edit-button { grid-column: 2; justify-self: end; }
+  .unlock-checkbox { grid-column: 3; justify-self: start; }
+}
+
+.button-container { width: 100%; max-width: 420px; margin-top: 22px; }
+
+/* ---------- Modals ---------- */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 10;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, .7);
+}
+.modal.show { display: flex; }
+
+.modal-content {
+  box-sizing: border-box;
+  width: 90%;
+  max-width: 480px;
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 24px 26px 22px;
+  text-align: center;
+  color: var(--pg-t1);
+  background: var(--pg-dialog);
+  border: 1px solid var(--pg-line-2);
+  border-radius: var(--pg-r-card);
+  animation: pgFade .15s ease-out;
+}
+#helpModal .modal-content { max-width: 560px; }
+.modal-content h2 { margin: 0 0 16px; font-size: 18px; font-weight: 600; }
+
+#editInput { display: block; width: 100%; }
+.suggestions-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--pg-t3);
+}
+#categoryDropdown { width: 100%; }
+
+/* Suggestion buttons get their look inline from setup-questions.js */
+#suggestionsList button {
+  min-height: 0;
+  padding: 8px 12px !important;
+  font-family: var(--pg-font);
+  font-size: 14px !important;
+  text-align: left;
+  color: var(--pg-t1) !important;
+  background: var(--pg-input) !important;
+  border: 1px solid var(--pg-line-2) !important;
+  border-radius: var(--pg-r) !important;
+}
+#suggestionsList button:hover { color: var(--pg-on-fill) !important; background: var(--pg-fill) !important; border-color: var(--pg-fill) !important; }
+
+.hint-text, .disclaimer-copy {
+  margin: 0 0 18px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--pg-t2);
+}
+.hint-text { text-align: left; }
+.hint-text strong, .hint-text u { color: var(--pg-t1); }
+
+.modal-buttons { margin-top: 18px; }

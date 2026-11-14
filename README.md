@@ -1,3 +1,22 @@
+# MVault
+
+MVault is a modified version of [Memoro Vault](https://github.com/Kasmaristo-Delvakto/memoro-vault) by
+Kasmaristo Delvakto, released under the same license, the GNU General Public License v3 (see
+[LICENSE](LICENSE)). The vault format, the encryption and the recovery process are unchanged, so vaults
+made with either app open in the other. The original README follows below.
+
+Changes in this version (October and November 2026):
+
+- A console look: Cascadia Mono at one size, the console colour scheme, left-aligned text, bracketed
+  buttons that invert under the pointer, no borders or rounded corners, and progress drawn with `#`
+- A native Windows window that opens at 920 x 510 and can be resized, with a new padlock icon
+- No logo or title screen, no emoji, and no Monero QR code
+- The window keeps repainting and following resizes while a vault is being unlocked
+- Bundled fonts: Cascadia Mono and Outfit, both under the SIL Open Font License (license files in
+  `src/assets/fonts`)
+
+---
+
 # Memoro Vault
 
 ![Memoro Vault](src/assets/Memoro_Vault_Horizontal.jpg)

@@ -27,18 +27,14 @@ initCryptoWasm().catch(console.error);
 
 // ---------- THEME (pre-flip + apply) ----------
 function applyDashboardTheme(theme) {
-  const cy = document.getElementById('theme-cypherpunk');
-  const cl = document.getElementById('theme-clean');
-  const isCypher = (theme === 'cypherpunk');
-
   // flip stylesheets
-  if (cy) cy.disabled = !isCypher;
-  if (cl) cl.disabled =  isCypher;
+  theme = MemoroTheme.flip(theme);
+  const isCypher = (theme === 'cypherpunk');
 
   // body data attribute
   const setBodyAttr = () => {
     if (document.body) {
-      document.body.setAttribute('data-theme', isCypher ? 'cypherpunk' : 'clean');
+      document.body.setAttribute('data-theme', theme);
     }
   };
   if (document.readyState === 'loading') {
@@ -54,18 +50,9 @@ function applyDashboardTheme(theme) {
   }
 }
 
-// pre-read saved theme & flip early to avoid FOUC
+// pre-read saved theme (theme-preflip.js already flipped the stylesheets before paint)
 (function initDashboardTheme(){
-  const saved = sessionStorage.getItem('theme') ??
-                localStorage.getItem('theme') ??
-                'cypherpunk';
-  window.__savedDashboardTheme = saved;
-
-  const cy = document.getElementById('theme-cypherpunk');
-  const cl = document.getElementById('theme-clean');
-  const isCypher = (saved === 'cypherpunk');
-  if (cy) cy.disabled = !isCypher;
-  if (cl) cl.disabled =  isCypher;
+  window.__savedDashboardTheme = MemoroTheme.saved();
 })();
 
 // ---------- GLOBAL STATE ----------
@@ -117,7 +104,7 @@ function saveVaultsToLocalStorage() {
     }));
     localStorage.setItem('memoroVaultIndex', JSON.stringify(index));
   } catch (err) {
-    console.error('❌ Failed to write vault index to localStorage:', err);
+    console.error('Failed to write vault index to localStorage:', err);
   }
 }
 
@@ -169,7 +156,7 @@ function addVaultToList(vaultId, fileName, vaultData, skipSaving = false) {
         </div>
       </div>
     </div>
-    <p>Status:Locked</p>
+    <p>Status: Locked</p>
     <button class="unlock-button" data-action="openUnlockModal" data-arg="${vaultId}">Unlock Vault</button>
   `;
   // The ZIP's file name is outside data: set it as text, never as markup
@@ -334,7 +321,7 @@ async function decryptAES(ciphertextArray, ivArray, rawKeyBytes) {
     }
     return decoded;
   } catch (err) {
-    console.error("❌ Decryption failed:", err);
+    console.error("Decryption failed:", err);
     throw new Error("Decryption failed: Incorrect key or corrupted data.");
   }
 }
@@ -382,7 +369,7 @@ async function submitUnlock() {
     unlockedLayer1 = fullVaultData;
 
   } catch (err) {
-    console.warn("❌ Unlock failed:", err.message);
+    console.warn("Unlock failed:", err.message);
     failedAttempts++;
     const lockDelay = 15000 * Math.pow(2, failedAttempts - 1);
     lockoutUntil = Date.now() + lockDelay;
@@ -668,7 +655,7 @@ window.DashboardMatrix = {
 
 // Apply the saved theme after DOM is ready (ensures body exists)
 (function bootstrapDashboardTheme(){
-  const apply = () => applyDashboardTheme(window.__savedDashboardTheme || 'cypherpunk');
+  const apply = () => applyDashboardTheme(window.__savedDashboardTheme || MemoroTheme.DEFAULT);
   if (document.readyState === 'loading') {
     window.addEventListener('DOMContentLoaded', apply, { once: true });
   } else {
@@ -681,7 +668,7 @@ async function nukeEverything() {
   try {
     const themeSession = sessionStorage.getItem("theme");
     const themeLocal   = localStorage.getItem("theme");
-    const preservedTheme = themeSession || themeLocal || "cypherpunk";
+    const preservedTheme = themeSession || themeLocal || MemoroTheme.DEFAULT;
 
     localStorage.clear();
     sessionStorage.clear();
@@ -1110,7 +1097,7 @@ function ingestQR(raw, src = "QR") {
     if (!paperState.totalTiles) {
       paperState.totalTiles = p.total;
     } else if (paperState.totalTiles !== p.total) {
-      setPaperMsg(`⚠️ Conflicting CT totals seen (was ${paperState.totalTiles}, now ${p.total}). Keeping first.`);
+      setPaperMsg(`Conflicting CT totals seen (was ${paperState.totalTiles}, now ${p.total}). Keeping first.`);
     }
     if (!paperState.tiles[p.idx]) {
       paperState.tiles[p.idx] = p.b64;
@@ -1329,7 +1316,7 @@ async function rebuildLiteFromPaper() {
     a.click();
     document.body.removeChild(a);
 
-    setPaperMsg(`✅ Rebuild complete. Download started: ${name}`);
+    setPaperMsg(`Rebuild complete. Download started: ${name}`);
 
     if (typeof handleVaultZip === 'function') {
       const dt = new DataTransfer();
@@ -1349,7 +1336,7 @@ async function rebuildLiteFromPaper() {
 
   } catch (err) {
     console.error(err);
-    setPaperMsg(`❌ Rebuild failed: ${err.message}`);
+    setPaperMsg(`Rebuild failed: ${err.message}`);
     alert(`Rebuild failed: ${err.message}`);
     window.__mvAutoRebuildDone = false;
   }

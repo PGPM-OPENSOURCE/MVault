@@ -7,9 +7,11 @@
   <meta charset="UTF-8">
   <title>Memoro Vault</title>
 
-  <!-- Default to Cypherpunk; Clean is loaded but disabled until chosen -->
-  <link id="theme-cypherpunk" rel="stylesheet" href="css/index_cypherpunk.css">
+  <!-- Default to PGPM; the other themes are loaded but disabled until chosen -->
+  <link id="theme-pgpm" rel="stylesheet" href="css/index_pgpm.css">
+  <link id="theme-cypherpunk" rel="stylesheet" href="css/index_cypherpunk.css" disabled>
   <link id="theme-clean" rel="stylesheet" href="css/index_clean.css" disabled>
+  <script src="js/theme-preflip.js"></script>
 </head>
 <body>
   <canvas id="matrix" style="display:none;"></canvas>
@@ -18,9 +20,6 @@
   <div id="themeFade"></div>
 
   <div class="content">
-    <img src="assets/memoro-logo-with-words.png"
-         alt="Memoro Vault Logo"
-         style="max-width:300px;height:auto;margin-bottom:20px;" />
     <p id="mainText"></p>
     <button id="startBtn" style="display:none;" data-action="showSafetyModal">Begin</button>
   </div>

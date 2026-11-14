@@ -1,17 +1,13 @@
   // Toggle Build Vault styles (and Matrix effect, if available)
   function applyBuildTheme(theme) {
-    const cy = document.getElementById('theme-cypherpunk');
-    const cl = document.getElementById('theme-clean');
-    const isCypher = (theme === 'cypherpunk');
-
     // 1) Flip stylesheets
-    if (cy) cy.disabled = !isCypher;
-    if (cl) cl.disabled =  isCypher;
+    theme = MemoroTheme.flip(theme);
+    const isCypher = (theme === 'cypherpunk');
 
     // 2) Set a body data-attribute (useful for CSS hooks)
     const setBodyAttr = () => {
       if (document.body) {
-        document.body.setAttribute('data-theme', isCypher ? 'cypherpunk' : 'clean');
+        document.body.setAttribute('data-theme', theme);
       }
     };
     if (document.readyState === 'loading') {
@@ -34,20 +30,13 @@
   // 1) Prefer sessionStorage (index sets it there), then fall back to localStorage, then default
   const sessionVal = sessionStorage.getItem(THEME_KEY);
   const localVal   = localStorage.getItem(THEME_KEY);
-  const saved      = (sessionVal ?? localVal) ?? 'cypherpunk';
+  const saved      = (sessionVal ?? localVal) ?? MemoroTheme.DEFAULT;
 
   // 2) Keep BOTH storages in sync so other pages find the same value
   if (localVal   !== saved) localStorage.setItem(THEME_KEY, saved);
   if (sessionVal !== saved) sessionStorage.setItem(THEME_KEY, saved);
 
-  // 3) Pre-flip styles early to avoid FOUC
-  const cy = document.getElementById('theme-cypherpunk');
-  const cl = document.getElementById('theme-clean');
-  const isCypher = (saved === 'cypherpunk');
-  if (cy) cy.disabled = !isCypher;
-  if (cl) cl.disabled =  isCypher;
-
-  // 4) Apply body attribute + optional Matrix hook
+  // 3) Apply body attribute + optional Matrix hook (theme-preflip.js already flipped the styles)
   const apply = () => applyBuildTheme(saved);
   if (document.readyState === 'loading') {
     window.addEventListener('DOMContentLoaded', apply, { once: true });
@@ -316,7 +305,7 @@ async function startVaultBuild() {
       showToast("The vault was not saved. Use Retry Download to build it again.");
       return;
     }
-    printToTerminal("[✔] Full vault verified and saved.", 90);
+    printToTerminal("[+] Full vault verified and saved.", 90);
 
     // 2) LITE payload: let the user choose contents (≤ 150 KB)
     const finalMessageBytesLen = sealArgs.finalMessage.trim()
@@ -366,7 +355,7 @@ async function startVaultBuild() {
     printToTerminal("[*] Encrypting Lite ZIP and creating single-file QR PDF...", 96);
     await MemoroPaperBackup.buildPaperPdfFromLiteZip(liteZip);
 
-    printToTerminal("[✔] Full vault and paper PDF created.", 100);
+    printToTerminal("[+] Full vault and paper PDF created.", 100);
     showPostBuildModal();
   } catch (err) {
     console.error("Vault build error:", err);
@@ -636,7 +625,7 @@ async function nukeEverything(opts = {}) {
     // 1) Cache theme from either storage (session wins, then local)
     const themeSession = sessionStorage.getItem(THEME_KEY);
     const themeLocal   = localStorage.getItem(THEME_KEY);
-    const preservedTheme = themeSession ?? themeLocal ?? "cypherpunk";
+    const preservedTheme = themeSession ?? themeLocal ?? MemoroTheme.DEFAULT;
 
     // 2) Clear storages EXCEPT THEME_KEY (avoid .clear() so theme survives)
     const safeClear = (store) => {
@@ -689,7 +678,7 @@ function closePostBuildModal() {
   if (modal) {
     document.body.style.overflow = "";
     modal.style.display = "none";
-    preserveOnBack = true;               // ✅ prevent beforeunload from wiping again on redirect
+    preserveOnBack = true;               // prevent beforeunload from wiping again on redirect
     setTimeout(async () => {
       await nukeEverything();            // full, awaited wipe here
       window.location.href = "dashboard.html";

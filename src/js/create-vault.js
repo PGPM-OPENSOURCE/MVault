@@ -1,17 +1,13 @@
   // Toggle Create-Vault styles + matrix by theme
   function applyCreateVaultTheme(theme) {
-    const cy = document.getElementById('theme-cypherpunk');
-    const cl = document.getElementById('theme-clean');
-    const isCypher = (theme === 'cypherpunk');
-
     // 1) Flip stylesheets (safe in <head>)
-    if (cy) cy.disabled = !isCypher;
-    if (cl) cl.disabled =  isCypher;
+    theme = MemoroTheme.flip(theme);
+    const isCypher = (theme === 'cypherpunk');
 
     // 2) Body attribute (for CSS hooks)
     const setBodyAttr = () => {
       if (document.body) {
-        document.body.setAttribute('data-theme', isCypher ? 'cypherpunk' : 'clean');
+        document.body.setAttribute('data-theme', theme);
       }
     };
     if (document.readyState === 'loading') {
@@ -27,21 +23,14 @@
     }
   }
 
-  // Read saved theme and pre-flip stylesheets early (avoid FOUC)
+  // Read saved theme (theme-preflip.js already flipped the stylesheets before paint)
   (function initCreateVaultTheme(){
-    const saved = sessionStorage.getItem('theme') || 'cypherpunk';
-    window.__savedCreateVaultTheme = saved;
-
-    const cy = document.getElementById('theme-cypherpunk');
-    const cl = document.getElementById('theme-clean');
-    const isCypher = (saved === 'cypherpunk');
-    if (cy) cy.disabled = !isCypher;
-    if (cl) cl.disabled =  isCypher;
+    window.__savedCreateVaultTheme = MemoroTheme.saved();
   })();
 
   // Ensure apply runs even if DOMContentLoaded already fired
   (function bootstrapCreateVaultTheme(){
-    const apply = () => applyCreateVaultTheme(window.__savedCreateVaultTheme || 'cypherpunk');
+    const apply = () => applyCreateVaultTheme(window.__savedCreateVaultTheme || MemoroTheme.DEFAULT);
     if (document.readyState === 'loading') {
       window.addEventListener('DOMContentLoaded', apply, { once: true });
     } else {

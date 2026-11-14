@@ -460,7 +460,9 @@ test('create a vault through every screen, starting from the welcome page', { ti
   await goto(ctx, 'index.html');
   await page.evaluate(() => { localStorage.removeItem('theme'); sessionStorage.removeItem('theme'); });
   await goto(ctx, 'index.html');
-  await page.click('#themeModal button[data-theme="cypherpunk"]');
+  // no theme saved: the PGPM default applies straight away, without the theme picker
+  assert.equal(await page.getAttribute('body', 'data-theme'), 'pgpm');
+  assert.equal(await page.locator('#themeModal').isVisible(), false);
   await page.click('#startBtn');
   await Promise.all([page.waitForURL(/dashboard\.html/, { timeout: 30000 }), page.click('#safetyModal button[data-action="acceptSafety"]')]);
 

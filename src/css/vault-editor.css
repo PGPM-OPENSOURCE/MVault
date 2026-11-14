@@ -1,5 +1,6 @@
-/* css/vault-editor.css: file viewer, vault editor and their dialogs (both themes).
-   Cypherpunk is the default palette; body[data-theme="clean"] switches to system colors. */
+/* css/vault-editor.css: file viewer, vault editor and their dialogs (all themes).
+   Cypherpunk is the base palette; body[data-theme="clean"] switches to system colors and
+   body[data-theme="pgpm"] to the cmd console look (shapes for it are at the end of this file). */
 
 body {
   --mv-bg: #000;
@@ -35,6 +36,24 @@ body[data-theme="clean"] {
   --mv-warn: #9a6700;
   --mv-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
   --mv-overlay: rgba(0, 0, 0, 0.45);
+}
+body[data-theme="pgpm"] {
+  --mv-bg: #0c0c0c;
+  --mv-panel: #161616;         /* the editor, viewer and dialogs: raised over the page, no outline */
+  --mv-raised: #1c1c1c;
+  --mv-fg: #cccccc;
+  --mv-muted: #a8a8a8;
+  --mv-accent: #cccccc;
+  --mv-accent-ink: #0c0c0c;
+  --mv-border: #3a3a3a;
+  --mv-border-strong: #767676;
+  --mv-btn-bg: #cccccc;        /* a highlight is inverted, like a cmd selection */
+  --mv-btn-hover: #f2f2f2;
+  --mv-danger: #e74856;
+  --mv-warn: #c19c00;
+  --mv-shadow: none;
+  --mv-overlay: rgba(0, 0, 0, 0.7);
+  --mv-font: Consolas, "Cascadia Mono", "Lucida Console", monospace;
 }
 
 body.mv-editor-open { overflow: hidden; }
@@ -181,7 +200,7 @@ body[data-theme="clean"] .mv-badge { color: var(--mv-fg); }
 .mv-dialog, .mv-progress-box {
   width: 100%;
   max-width: 560px;
-  max-height: 90vh;
+  max-height: calc(100vh - 32px);
   overflow-y: auto;
   background: var(--mv-panel);
   color: var(--mv-fg);
@@ -314,3 +333,96 @@ body[data-theme="clean"] .mv-dialog-title { color: var(--mv-fg); }
   .mv-recovered-row .button { grid-column: span 1; }
   .mv-editor-panel { padding: 16px; }
 }
+
+/* ---------- cmd look: no borders (pgpm.css), dim buttons that invert under the pointer, square
+   corners; each button row is one bar with the primary action inverted, like a cmd selection ---------- */
+body[data-theme="pgpm"] .mv-btn {
+  min-height: 32px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--mv-fg);
+  background: #262626;
+  border: 1px solid transparent;
+  border-radius: 0;
+}
+body[data-theme="pgpm"] .mv-btn:hover { color: var(--mv-accent-ink); background: var(--mv-btn-bg); border-color: var(--mv-btn-bg); }
+body[data-theme="pgpm"] .mv-btn:focus-visible,
+body[data-theme="pgpm"] .mv-input:focus-visible,
+body[data-theme="pgpm"] .mv-textarea:focus-visible { outline: 1px solid #767676; }
+body[data-theme="pgpm"] .mv-btn-sm { min-height: 28px; padding: 0 12px; font-size: 13px; }
+body[data-theme="pgpm"] .mv-btn-primary { color: var(--mv-accent-ink); background: var(--mv-btn-bg); border-color: var(--mv-btn-bg); font-weight: 400; }
+body[data-theme="pgpm"] .mv-btn-primary:hover { background: var(--mv-btn-hover); filter: none; }
+body[data-theme="pgpm"] .mv-btn-danger { color: var(--mv-danger); }
+body[data-theme="pgpm"] .mv-btn-danger:hover { color: var(--mv-accent-ink); background: var(--mv-danger); border-color: var(--mv-danger); }
+
+body[data-theme="pgpm"] :is(.mv-editor-actions, .mv-dialog-buttons, .mv-row-actions, .mv-viewer-actions) {
+  flex-wrap: nowrap;
+  gap: 2px;
+  padding: 4px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+body[data-theme="pgpm"] .mv-viewer-tools { gap: 2px; }
+body[data-theme="pgpm"] :is(.mv-editor-actions, .mv-dialog-buttons, .mv-row-actions, .mv-viewer-actions) .mv-btn {
+  min-height: 30px;
+  padding: 6px 12px;
+  color: var(--mv-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+body[data-theme="pgpm"] :is(.mv-editor-actions, .mv-dialog-buttons, .mv-row-actions, .mv-viewer-actions) .mv-btn:hover {
+  color: var(--mv-fg);
+  background: rgba(255, 255, 255, .07);
+}
+body[data-theme="pgpm"] :is(.mv-editor-actions, .mv-dialog-buttons, .mv-row-actions, .mv-viewer-actions) .mv-btn-primary { color: var(--mv-accent-ink); background: var(--mv-btn-bg); }
+body[data-theme="pgpm"] :is(.mv-editor-actions, .mv-dialog-buttons, .mv-row-actions, .mv-viewer-actions) .mv-btn-primary:hover { color: var(--mv-accent-ink); background: var(--mv-btn-hover); }
+body[data-theme="pgpm"] :is(.mv-editor-actions, .mv-dialog-buttons, .mv-row-actions, .mv-viewer-actions) .mv-btn-danger { color: var(--mv-danger); }
+body[data-theme="pgpm"] :is(.mv-editor-actions, .mv-dialog-buttons, .mv-row-actions, .mv-viewer-actions) .mv-btn-danger:hover { color: var(--mv-danger); background: rgba(231, 72, 86, .14); }
+body[data-theme="pgpm"] .mv-dialog-buttons .mv-btn { flex: 1 1 0; }
+body[data-theme="pgpm"] .mv-row-actions { padding: 3px; }
+body[data-theme="pgpm"] .mv-row-actions .mv-btn { min-height: 28px; padding: 4px 10px; }
+body[data-theme="pgpm"] .mv-zoom-label { padding: 0 6px; }
+
+body[data-theme="pgpm"] .mv-input,
+body[data-theme="pgpm"] .mv-textarea {
+  font-family: Consolas, "Cascadia Mono", Menlo, monospace;
+  font-size: 13px;
+  background: #202020;
+  border-radius: 0;
+}
+body[data-theme="pgpm"] .mv-input:focus,
+body[data-theme="pgpm"] .mv-textarea:focus { border-color: var(--mv-fg); outline: none; }
+body[data-theme="pgpm"] .mv-text,
+body[data-theme="pgpm"] .mv-text-edit,
+body[data-theme="pgpm"] .mv-seed-text { font-family: Consolas, "Cascadia Mono", Menlo, monospace; font-size: 13px; }
+body[data-theme="pgpm"] .mv-label { font-size: 13px; }
+
+body[data-theme="pgpm"] :is(.mv-editor-panel, .mv-dialog, .mv-progress-box, .mv-viewer-panel) { border-radius: 0; }
+body[data-theme="pgpm"] .mv-editor-title { font-size: 20px; font-weight: 600; color: #f2f2f2; }
+body[data-theme="pgpm"] .mv-dialog-title { font-size: 17px; font-weight: 600; color: var(--mv-fg); }
+body[data-theme="pgpm"] .mv-editor-status { font-size: 13px; }
+body[data-theme="pgpm"] .mv-pill { font-size: 12px; font-weight: 500; }
+body[data-theme="pgpm"] .mv-pill-ok { color: var(--mv-muted); }
+body[data-theme="pgpm"] .mv-section-head h2 {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #767676;
+}
+body[data-theme="pgpm"] .mv-row { border-radius: 0; }
+body[data-theme="pgpm"] .mv-row-name { font-size: 14px; }
+body[data-theme="pgpm"] .mv-tag { border-radius: 0; }
+body[data-theme="pgpm"] .mv-badge { color: var(--mv-muted); background: var(--mv-bg); border-color: var(--mv-border-strong); border-radius: 0; }
+body[data-theme="pgpm"] .mv-note, body[data-theme="pgpm"] .mv-hint { font-size: 13px; }
+body[data-theme="pgpm"] .mv-progress-track { height: 4px; border: 0; background: var(--mv-border); }
+
+/* Recovered-files list on the recover page */
+body[data-theme="pgpm"] .mv-recovered-row { padding: 8px 10px; background: var(--mv-panel); border-radius: 0; }
+body[data-theme="pgpm"] .mv-recovered-name { font-size: 14px; color: var(--mv-fg); }
+body[data-theme="pgpm"] .button.mv-small { min-height: 28px; padding: 0 12px; font-size: 13px; border-radius: 0; }
+body[data-theme="pgpm"] .mv-recovered-actions { gap: 2px; justify-content: stretch; }
+body[data-theme="pgpm"] .mv-edit-vault { font-weight: 400; }
+body[data-theme="pgpm"] .mv-recovered-hint { font-size: 13px; color: #767676; }
