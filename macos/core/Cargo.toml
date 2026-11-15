@@ -1,0 +1,29 @@
+[package]
+name = "mvault-core"
+description = "Memoro Vault format, crypto, paper backup and strength estimate (no UI)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+# Same crypto crates and major versions as rust/memoro-crypto (the WASM engine every released
+# vault was made with), so key derivation and encryption are identical by construction.
+argon2 = { version = "0.5.3", default-features = false, features = ["std"] }
+aes-gcm = "0.10.3"
+sha2 = "0.10.9"
+base64 = "0.22.1"
+getrandom = "0.3"
+zeroize = "1.8"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+zip = { version = "9", default-features = false, features = ["deflate"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+rayon = "1.10"
+qrcode = { version = "0.14", default-features = false }
+pdf-writer = "0.15"
+miniz_oxide = "0.8"
+thiserror = "2"
+
+[dev-dependencies]
+base64 = "0.22.1"

@@ -1,0 +1,7 @@
+/target/
+/dist/
+*.log
+# 80 MB: the paper backup the Electron app printed for the fixture vault. Recreate it with
+# reference/capture.cjs; the test that reads it is skipped when it is missing.
+/reference/pgpm/_fixture-lite-QR.pdf
+.DS_Store

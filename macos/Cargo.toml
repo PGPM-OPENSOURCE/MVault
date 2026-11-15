@@ -1,0 +1,20 @@
+[workspace]
+resolver = "3"
+members = ["core", "app"]
+
+[workspace.package]
+version = "1.1.0"
+edition = "2024"
+license = "GPL-3.0-only"
+publish = false
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = true
+panic = "abort"
+
+# Argon2 runs 720 times while unlocking: keep it fast in debug builds too
+[profile.dev.package."*"]
+opt-level = 3
