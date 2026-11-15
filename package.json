@@ -74,8 +74,11 @@
     },
 
     "mac": {
-      "icon": "src/assets/memoro-logo-white.png",
-      "target": ["dmg"]
+      "icon": "src/assets/memoro-vault.icns",
+      "target": ["dmg"],
+      "extendInfo": {
+        "NSCameraUsageDescription": "The camera is used only to scan the QR codes of a paper backup."
+      }
     },
 
     "linux": {

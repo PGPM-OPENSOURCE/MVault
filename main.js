@@ -340,6 +340,26 @@ ipcMain.handle('copy-donation-link', async () => { await clipboard.writeText(DON
 // renderers cannot pass a URL of their own.
 ipcMain.handle('open-donation-page', async () => { await shell.openExternal(DONATION_URL); return true; });
 
+// macOS: Cmd+C, Cmd+V, Cmd+A, Cmd+Z and Cmd+Q only work through the application menu, so without
+// one, text fields could not copy or paste and Cmd+Q would do nothing. The Mac build gets the
+// standard app, Edit and Window items only: no View menu, so no reload and no DevTools.
+function macAppMenu() {
+  return Menu.buildFromTemplate([
+    { label: app.name, submenu: [
+      { role: 'about' }, { type: 'separator' },
+      { role: 'hide' }, { role: 'hideOthers' }, { role: 'unhide' }, { type: 'separator' },
+      { role: 'quit' }
+    ] },
+    { label: 'Edit', submenu: [
+      { role: 'undo' }, { role: 'redo' }, { type: 'separator' },
+      { role: 'cut' }, { role: 'copy' }, { role: 'paste' }, { role: 'selectAll' }
+    ] },
+    { role: 'window', submenu: [
+      { role: 'minimize' }, { role: 'zoom' }, { type: 'separator' }, { role: 'close' }
+    ] }
+  ]);
+}
+
 app.whenReady()
   .then(() => Promise.all([
     hardenSession(session.fromPartition(SESSION_PARTITION)),
@@ -350,7 +370,8 @@ app.whenReady()
     session.defaultSession.clearCache().catch(() => {})
   ]))
   .then(() => {
-    Menu.setApplicationMenu(null);
+    // Windows and Linux run without a menu bar; macOS keeps its app menu for the shortcuts above
+    Menu.setApplicationMenu(process.platform === 'darwin' ? macAppMenu() : null);
   })
   .then(createAppWindows);
 

@@ -22,9 +22,17 @@ async function launchApp(appDir = REPO, { theme = 'cypherpunk', acceptEula = tru
   const downloadsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mv-e2e-dl-'));
   // An older checkout runs on the Electron it shipped with, when its node_modules are installed.
   const ownElectron = path.join(appDir, 'node_modules', 'electron');
+  // XDG_CONFIG_HOME moves the profile only on Linux. On macOS and Windows point Electron straight
+  // at the same folder, named the way Electron names it (productName, then name).
+  let appName = 'Electron';
+  try {
+    const pkg = JSON.parse(fs.readFileSync(path.join(appDir, 'package.json'), 'utf8'));
+    appName = pkg.productName || pkg.name || appName;
+  } catch { /* no package.json: Electron uses its own name */ }
+  const profileArgs = process.platform === 'linux' ? [] : [`--user-data-dir=${path.join(profile, appName)}`];
   const app = await _electron.launch({
     executablePath: require(fs.existsSync(ownElectron) ? ownElectron : path.join(REPO, 'node_modules', 'electron')),
-    args: [path.join(appDir, 'main.js')],
+    args: [path.join(appDir, 'main.js'), ...profileArgs],
     cwd: appDir,
     env: { ...process.env, XDG_CONFIG_HOME: profile, ELECTRON_ENABLE_LOGGING: '0' },
   });
