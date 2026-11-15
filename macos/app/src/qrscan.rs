@@ -209,6 +209,23 @@ mod tests {
         mvault_core::vault::peek_vault_zip(&zip).unwrap();
     }
 
+    /// Diagnostics: renders MV_PDF_A and MV_PDF_B and compares them page by page.
+    #[test]
+    #[ignore]
+    fn compare_two_pdfs() {
+        let a = std::fs::read(std::env::var("MV_PDF_A").unwrap()).unwrap();
+        let b = std::fs::read(std::env::var("MV_PDF_B").unwrap()).unwrap();
+        let (pa, pb) = (pdf_open(&a).unwrap(), pdf_open(&b).unwrap());
+        for i in 0..pa.pages().len() {
+            let (ga, gb) = (pdf_page(&pa, i).unwrap(), pdf_page(&pb, i).unwrap());
+            let diff = ga.px.iter().zip(&gb.px).filter(|(x, y)| x.abs_diff(**y) > 8).count();
+            let (mut na, mut nb) = (0, 0);
+            scan_pdf_page(&ga, &mut |_| na += 1, &|| false);
+            scan_pdf_page(&gb, &mut |_| nb += 1, &|| false);
+            println!("page {i}: {}x{} vs {}x{}, {diff} pixels differ; codes {na} vs {nb}", ga.w, ga.h, gb.w, gb.h);
+        }
+    }
+
     /// Writes the fixture vault as a paper backup printed by this app, for the Electron app to
     /// restore (reference/check-js-restores-rust-pdf.cjs):
     ///   MV_PDF_OUT=/tmp/x.pdf cargo test -p mvault --release write_paper_pdf_for_js -- --ignored

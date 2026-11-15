@@ -42,8 +42,8 @@ pub fn kind(name: &str, mime: &str, bytes: &[u8]) -> Kind {
     if sn == "application/pdf" || m == "application/pdf" || ext_in(name, &["pdf"]) { return Kind::Pdf; }
     if sn.starts_with("image/") || ext_in(name, &["svg"]) || m == "image/svg+xml" { return Kind::Image; }
     if m.starts_with("image/") || ext_in(name, &["png", "jpg", "jpeg", "gif", "webp", "bmp", "ico", "avif", "svg"]) { return Kind::Image; }
-    if m.starts_with("audio/") || ext_in(name, &["mp3", "wav", "ogg", "oga", "m4a", "aac", "flac", "opus"]) { return Kind::Audio; }
-    if m.starts_with("video/") || ext_in(name, &["mp4", "m4v", "webm", "ogv", "mov"]) { return Kind::Video; }
+    if m.starts_with("audio/") || ext_in(name, &["mp3", "wav", "ogg", "oga", "m4a", "aac", "flac", "opus", "mka", "aif", "aiff", "caf"]) { return Kind::Audio; }
+    if m.starts_with("video/") || ext_in(name, &["mp4", "m4v", "webm", "ogv", "mov", "mkv"]) { return Kind::Video; }
     if m.starts_with("text/") || ["json", "xml", "csv", "yaml", "javascript"].iter().any(|k| m.contains(k))
         || ext_in(name, &["txt", "md", "markdown", "csv", "tsv", "json", "xml", "yaml", "yml", "log", "ini", "cfg", "conf", "toml", "asc", "pem", "pub", "eml", "tex", "js", "ts", "py", "rb", "go", "rs", "java", "c", "h", "cpp", "sh", "bat", "ps1", "sql", "html", "htm", "css", "svg"]) {
         return Kind::Text;
@@ -102,8 +102,7 @@ pub struct Viewer {
     /// the body's width last frame (`body.clientWidth`)
     body_w: f32,
     /// audio and video: an AVPlayer reading the bytes from memory
-    #[cfg(target_os = "macos")]
-    media: Option<Result<crate::macos::Player, String>>,
+    media: Option<Result<crate::media::AnyPlayer, String>>,
     media_tex: Option<TextureHandle>,
     /// snapshots: start playing as soon as it can
     pub snap_play: bool,
@@ -129,7 +128,6 @@ impl Viewer {
         Viewer {
             name: name.into(), mime: mime.into(), kind: k, meta, bytes, image: None, zoom: 0.0, pdf: None, pdf_scale: 1.25, text: None,
             editing: None, focus_edit: false, saved: None, can_edit: editable.unwrap_or(false), focus_scroll: true, body_w: 0.0,
-            #[cfg(target_os = "macos")]
             media: None,
             media_tex: None,
             snap_play: false,
@@ -213,27 +211,26 @@ pub fn show(v: &mut Viewer, sh: &mut Shared, ui: &mut egui::Ui, under: Option<&s
             let cut = v.bytes.len().min(MAX_TEXT_PREVIEW);
             v.text = Some(decode_text(&v.bytes[..cut]));
         }
-        #[cfg(target_os = "macos")]
         Kind::Audio | Kind::Video if v.media.is_none() => {
-            v.media = Some(crate::macos::Player::open(v.bytes.clone(), &v.name, &v.mime, &ctx));
+            v.media = Some(crate::media::AnyPlayer::open(v.bytes.clone(), &v.name, &v.mime, &ctx));
         }
         _ => {}
     }
-    #[cfg(target_os = "macos")]
-    if let Some(Ok(p)) = &v.media {
+    if let Some(Ok(p)) = &mut v.media {
+        p.poll();
         if let Some(f) = p.frame() {
-            let img = ColorImage::from_rgba_unmultiplied([f.w, f.h], &f.rgba());
+            let img = ColorImage::from_rgba_unmultiplied([f.w, f.h], &f.rgba);
             match &mut v.media_tex {
                 Some(t) => t.set(img, TextureOptions::LINEAR),
                 None => v.media_tex = Some(ctx.load_texture("viewer-media", img, TextureOptions::LINEAR)),
             }
         }
-        if v.snap_play && matches!(p.state(), crate::macos::PlayerState::Ready) {
+        if v.snap_play && matches!(p.state(), crate::media::State::Ready) {
             v.snap_play = false;
             p.play();
         }
         let wait = match p.state() {
-            crate::macos::PlayerState::Loading => Some(100),
+            crate::media::State::Loading => Some(100),
             _ if p.playing() => Some(16),
             _ => None,
         };
@@ -298,17 +295,14 @@ pub fn show(v: &mut Viewer, sh: &mut Shared, ui: &mut egui::Ui, under: Option<&s
             match v.kind {
                 Kind::Image => v.image.as_ref().and_then(|r| r.as_ref().err().cloned()),
                 Kind::Pdf => v.pdf.as_ref().and_then(|r| r.as_ref().err().cloned()),
-                #[cfg(target_os = "macos")]
                 Kind::Audio | Kind::Video => match &v.media {
                     Some(Err(e)) => Some(format!("This file could not be played ({e}). You can still download it.")),
                     Some(Ok(p)) => match p.state() {
-                        crate::macos::PlayerState::Failed(e) => Some(format!("This file could not be played ({e}). You can still download it.")),
+                        crate::media::State::Failed(e) => Some(format!("This file could not be played ({e}). You can still download it.")),
                         _ => None,
                     },
                     None => None,
                 },
-                #[cfg(not(target_os = "macos"))]
-                Kind::Audio | Kind::Video => Some("Memoro Vault cannot display this file type. You can still download it.".into()),
                 Kind::Other => Some("Memoro Vault cannot display this file type. You can still download it.".into()),
                 Kind::Text => None,
             }
@@ -323,10 +317,9 @@ pub fn show(v: &mut Viewer, sh: &mut Shared, ui: &mut egui::Ui, under: Option<&s
                 Some(Ok(pages)) => pdf_base(pages, ppp).0,
                 _ => 0.0,
             },
-            #[cfg(target_os = "macos")]
             Kind::Audio | Kind::Video => {
                 let nat = match &v.media {
-                    Some(Ok(p)) if v.kind == Kind::Video => p.video_size().0,
+                    Some(Ok(p)) => p.video_size().0,
                     _ => 0.0,
                 };
                 nat.max(MEDIA_BAR_W)
@@ -480,9 +473,8 @@ pub fn show(v: &mut Viewer, sh: &mut Shared, ui: &mut egui::Ui, under: Option<&s
                         0.0
                     }
                 }
-                #[cfg(target_os = "macos")]
                 Kind::Audio | Kind::Video => match &v.media {
-                    Some(Ok(p)) => media_body(pg, p, v.media_tex.as_ref(), v.kind == Kind::Video, (cx, cy, cw), vh, &mut media_act, &mut seek_to),
+                    Some(Ok(p)) => media_body(pg, p, v.media_tex.as_ref(), (cx, cy, cw), vh, &mut media_act, &mut seek_to),
                     _ => 0.0,
                 },
                 _ => 0.0,
@@ -502,8 +494,7 @@ pub fn show(v: &mut Viewer, sh: &mut Shared, ui: &mut egui::Ui, under: Option<&s
         by + body_h + 1.0 + 8.0
     });
     v.body_w = body_w_now;
-    #[cfg(target_os = "macos")]
-    if let Some(Ok(p)) = &v.media {
+    if let Some(Ok(p)) = &mut v.media {
         match media_act {
             Some("mtoggle") => {
                 if p.playing() { p.pause() } else { p.play() }
@@ -592,12 +583,12 @@ fn clock(t: f64) -> String {
 
 /// The picture (video) fitted like `.mv-media`, then a console control line:
 /// [Play] 0:05 / 1:30 ────────── [Mute]. Returns the height used.
-#[cfg(target_os = "macos")]
 #[allow(clippy::too_many_arguments)]
-fn media_body(pg: &mut Pg<'_>, p: &crate::macos::Player, tex: Option<&TextureHandle>, video: bool, (cx, cy, cw): (f32, f32, f32), vh: f32, act: &mut Option<&'static str>, seek_to: &mut Option<f64>) -> f32 {
+fn media_body(pg: &mut Pg<'_>, p: &crate::media::AnyPlayer, tex: Option<&TextureHandle>, (cx, cy, cw): (f32, f32, f32), vh: f32, act: &mut Option<&'static str>, seek_to: &mut Option<f64>) -> f32 {
     let mut y = cy;
-    if video {
-        let (nw, nh) = p.video_size();
+    // a picture when there is one (a .webm or .ogg may be sound only, whatever its name says)
+    let (nw, nh) = p.video_size();
+    if nw > 0.0 && nh > 0.0 {
         let (bw, bh) = if nw > 0.0 && nh > 0.0 {
             let s = 1.0f32.min(cw / nw).min((vh - 140.0).max(60.0) / nh);
             (nw * s, nh * s)
@@ -617,7 +608,7 @@ fn media_body(pg: &mut Pg<'_>, p: &crate::macos::Player, tex: Option<&TextureHan
         }
         y += bh + 8.0;
     }
-    let ready = matches!(p.state(), crate::macos::PlayerState::Ready);
+    let ready = matches!(p.state(), crate::media::State::Ready);
     let label = if p.playing() { "Pause" } else { "Play" };
     if pg.button("media-play", cx, y, Btn::new(label).color(col::T1).enabled(ready)).clicked() {
         *act = Some("mtoggle");

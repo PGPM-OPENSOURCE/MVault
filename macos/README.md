@@ -10,7 +10,11 @@ backups.
 - PDF viewing and paper-backup reading: [hayro](https://github.com/LaurenzV/hayro) +
   [rqrr](https://github.com/WanzenBug/rqrr); paper backups printed with
   [pdf-writer](https://github.com/typst/pdf-writer) + [qrcode](https://github.com/kennytm/qrcode-rust)
-- macOS: AppKit menu, AVFoundation for the camera (QR scanning) and audio/video playback
+- macOS: AppKit menu, AVFoundation for the camera (QR scanning) and MP4/MOV/MP3/AAC/WAV/FLAC
+- WebM, Matroska and Ogg in pure Rust: VP8 ([vp8-decoder](https://crates.io/crates/vp8-decoder)),
+  VP9 ([rusty_vp9](https://crates.io/crates/rusty_vp9)), AV1 ([rav1d](https://crates.io/crates/rav1d)),
+  Theora ([theora-rs](https://crates.io/crates/theora-rs)), Opus/Vorbis/FLAC
+  ([symphonia](https://crates.io/crates/symphonia) + [symphonia-opus](https://crates.io/crates/symphonia-opus))
 
 Everything stays in memory. Decrypted files are only written when you save them, and audio
 and video play straight from memory (an AVFoundation resource loader hands the bytes over),
@@ -37,7 +41,7 @@ scripts/package-macos.sh             # dist/Memoro Vault.app and dist/Memoro-Vau
 | Path | What |
 | --- | --- |
 | `core/` | vault format: seal, open, verify, re-seal, recovery (720 orders), lite vaults, paper-backup PDF and its restore, zxcvbn strength estimate, the JS string rules the format depends on |
-| `app/` | the app: pages (`app/src/pages`), UI toolkit (`ui.rs`), QR reading (`qrscan.rs`), macOS integration (`macos.rs`) |
+| `app/` | the app: pages (`app/src/pages`), UI toolkit (`ui.rs`), QR reading (`qrscan.rs`), WebM/Ogg playback (`media.rs`), macOS integration (`macos.rs`) |
 | `reference/` | screenshots and layout dumps of every screen of the Electron app, the scripts that captured them, and `compare.py`, which checks the Rust app against them |
 | `scripts/` | packaging |
 
@@ -54,7 +58,8 @@ cargo test --workspace --release
   checkout: `MVAULT_REPO=/path/to/MVault`, or this folder inside it, or a sibling `MVault`.
 - `app` tests: the paper backup the Electron app printed restores here, and one printed here
   restores here. `reference/check-js-restores-rust-pdf.cjs` checks that the Electron app
-  restores one printed here.
+  restores one printed here. `media::tests::decodes_samples` (ignored; set
+  `MVAULT_MEDIA_DIR` to a folder of WebM/Ogg files) decodes sample media.
 
 Screen-by-screen comparison with the Electron app:
 
@@ -78,12 +83,15 @@ Fixed here (the Electron app has these bugs):
 - Closing and reopening the vault editor after saving went back to the first revision, so
   the next save was numbered (and dated) from the old one. It continues from the latest here.
 
-Not yet the same:
+- On the setup page, Esc closes every dialog (only the help dialog did so in the first port).
+- Leaving the recovered vault, or quitting while it is open, blanks the clipboard (a copied
+  seed phrase does not outlive it), as recover.js does.
 
-- Audio and video play through AVFoundation, which covers MP4/MOV/M4V (H.264, HEVC) and
-  MP3/AAC/M4A/WAV/AIFF/FLAC/ALAC. WebM, Ogg and Opus, which Chromium also plays, show
-  "could not be played" (Download still works).
-- Text is drawn by egui, so glyph edges differ slightly from Chromium's; layouts match.
+Also new on macOS: the App/Edit/Window menu, camera scanning of paper-backup QR codes, and
+audio/video playback of everything Chromium played (MP4, MOV, WebM, Matroska, Ogg; H.264, HEVC,
+VP8, VP9, AV1, Theora, AAC, MP3, Opus, Vorbis, FLAC, WAV), straight from memory.
+
+Text is drawn by egui, so glyph edges differ slightly from Chromium's; layouts match.
 
 ## License
 

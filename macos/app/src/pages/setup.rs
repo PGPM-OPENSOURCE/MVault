@@ -307,7 +307,8 @@ fn message(st: &mut Setup, sh: &mut Shared, ui: &mut egui::Ui) {
         ok = pg.button("ok", x, y, Btn::new("OK")).clicked();
         y + LINE + 9.0
     });
-    if ok {
+    // Esc closes any open dialog on this page (setup-questions.js)
+    if ok || ui.input(|i| i.key_pressed(egui::Key::Escape)) {
         st.message = None;
     }
 }
@@ -323,6 +324,10 @@ fn disclaimer(st: &mut Setup, sh: &mut Shared, ui: &mut egui::Ui) {
         go = pg.button("go", x, y, Btn::new("I Understand — Continue")).clicked();
         y + LINE + 9.0
     });
+    if !go && ui.input(|i| i.key_pressed(egui::Key::Escape)) {
+        st.disclaimer = false;
+        return;
+    }
     if go {
         st.disclaimer = false;
         sh.flow.questions = Some(st.questions.clone());
@@ -409,6 +414,8 @@ fn edit(st: &mut Setup, sh: &mut Shared, ui: &mut egui::Ui) {
             }
         }
         Some(1) => st.edit = None,
+        // Esc closes it like [Cancel]; with the category list open, Esc closes just the list
+        _ if !open && ui.input(|i| i.key_pressed(egui::Key::Escape)) => st.edit = None,
         _ => {}
     }
 }

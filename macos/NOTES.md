@@ -83,5 +83,12 @@ Run it with ELECTRON_RUN_AS_NODE unset (VS Code's extension host sets it).
 - App/Edit/Window menu like main.js `macAppMenu`; Edit items become egui events.
 - Camera: AVCaptureSession at 1280x720, BGRA frames, scanned every 300ms (paper dialog).
 - Audio/video: AVPlayer fed from memory by an AVAssetResourceLoader delegate (custom URL
-  scheme), frames from AVPlayerItemVideoOutput. No WebM/Ogg/Opus (AVFoundation limits).
+  scheme), frames from AVPlayerItemVideoOutput.
+- WebM/Matroska/Ogg (app/src/media.rs): sound decoded to PCM (symphonia + symphonia-opus) and
+  played as an in-memory WAV through AVPlayer, which is the clock; video demuxed up front
+  (matroska-demuxer, ogg) and decoded a few frames ahead on a thread (vp8-decoder, rusty_vp9,
+  rav1d without asm, theora-rs). Checked on real files: Wikimedia Commons VP8/VP9/Theora/Opus/
+  Vorbis samples and Chromium's bear-av1.webm.
+- reference/pgpm/_fixture-lite-QR.pdf is the Electron-printed backup with its images Flate-
+  compressed losslessly (82 MB -> 400 KB; renders pixel-identical): reference/flate_pdf_images.py.
 - Startup scrub of web storage left by releases up to 1.0.8 (main.js `scrubLegacyWebStorage`).

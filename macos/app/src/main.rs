@@ -4,6 +4,7 @@ mod app;
 mod fonts;
 #[cfg(target_os = "macos")]
 mod macos;
+mod media;
 mod pages;
 mod prefs;
 mod qrscan;

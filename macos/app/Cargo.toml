@@ -26,6 +26,15 @@ base64 = "0.22"
 hayro = { version = "0.9", features = ["embed-fonts"] }
 zip = { version = "9", default-features = false, features = ["deflate"] }
 rqrr = "0.10"
+# audio and video the system player cannot read (WebM, Matroska, Ogg), all in Rust
+symphonia = { version = "0.6", default-features = false, features = ["ogg", "vorbis", "flac", "mkv", "wav", "pcm", "mp3", "aac", "isomp4"] }
+symphonia-opus = "0.1"
+matroska-demuxer = "0.8"
+ogg = "0.9"
+vp8-decoder = "0.1"
+rusty_vp9 = "0.2"
+rav1d = { version = "1.1", default-features = false, features = ["bitdepth_8", "bitdepth_16"] }
+theora-rs = "0.1"
 
 # macOS: the app menu, the camera (AVCaptureSession) and audio/video playback from memory (AVPlayer)
 [target.'cfg(target_os = "macos")'.dependencies]

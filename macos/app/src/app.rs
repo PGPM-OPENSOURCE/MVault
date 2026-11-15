@@ -106,6 +106,10 @@ impl App {
 
     fn apply_nav(&mut self, ctx: &egui::Context) {
         let Some(nav) = self.sh.nav.take() else { return };
+        // leaving the recover page by any way blanks the clipboard (recover.js `onLeave`)
+        if matches!(self.page, Page::Recover(_)) {
+            crate::pages::recover::wipe_clipboard();
+        }
         match nav {
             Nav::To(p) => {
                 let old = std::mem::replace(&mut self.page, p);
@@ -130,6 +134,14 @@ impl App {
 impl eframe::App for App {
     fn clear_color(&self, _v: &egui::Visuals) -> [f32; 4] {
         col::BG.to_normalized_gamma_f32()
+    }
+
+    /// Quitting from the recover page blanks the clipboard (recover.js `onLeave`), so a copied
+    /// seed phrase does not outlive the session.
+    fn on_exit(&mut self) {
+        if matches!(self.page, Page::Recover(_)) {
+            crate::pages::recover::wipe_clipboard();
+        }
     }
 
     /// Edit-menu commands arrive as the events their shortcuts would send.
